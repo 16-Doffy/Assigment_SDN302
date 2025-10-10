@@ -1,35 +1,40 @@
 const express = require('express');
-const { body, validationResult } = require('express-validator');
-const { ensureAuthenticated } = require('../middleware/authView');
-const Member = require('../models/Member');
-
 const router = express.Router();
+const Member = require('../models/Member');
+const { ensureAuthenticated } = require('../middleware/authView');
 
 router.use(ensureAuthenticated);
 
-router.get('/', async (req, res) => {
-  const m = await Member.findById(req.session.member.id);
-  res.render('profile/index', { values: { fullName: m.fullName || '', birthYear: m.birthYear || '' }, errors: {} });
+router.get('/', async (req, res, next) => {
+  try {
+    const user = await Member.findById(req.user._id).lean();
+    res.render('profile/index', { user, error: null });
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.post(
-  '/',
-  body('fullName').isString().trim().notEmpty(),
-  body('birthYear').isInt({ min: 1900, max: 2100 }),
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).render('profile/index', {
-        values: req.body,
-        errors: Object.fromEntries(errors.array().map((e) => [e.path, e.msg])),
-      });
+// cập nhật fullname và birthYear
+router.post('/edit', async (req, res, next) => {
+  try {
+    const { fullname, birthYear } = req.body;
+    const update = {};
+    if (typeof fullname === 'string') update.fullname = fullname.trim();
+    if (birthYear) {
+      const y = parseInt(birthYear, 10);
+      if (!isNaN(y)) update.birthYear = y;
     }
-    await Member.findByIdAndUpdate(req.session.member.id, {
-      $set: { fullName: req.body.fullName.trim(), birthYear: Number(req.body.birthYear) },
-    });
+    await Member.findByIdAndUpdate(req.user._id, update);
+    // cập nhật session.member nếu có
+    if (req.session && req.session.member) {
+      req.session.member.username = req.session.member.username; // keep
+      req.session.member.fullname = update.fullname || req.session.member.fullname;
+    }
     res.redirect('/profile');
+  } catch (err) {
+    next(err);
   }
-);
+});
 
 module.exports = router;
 

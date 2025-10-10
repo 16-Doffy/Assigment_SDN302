@@ -3,13 +3,15 @@ const Schema = mongoose.Schema;
 
 const memberSchema = new Schema(
   {
-    username: { type: String, required: true, trim: true, unique: true },
+    username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    fullname: { type: String, trim: true, default: '' },
+    birthYear: { type: Number, min: 1900, max: 2100 },
     role: { type: String, enum: ['guest', 'user', 'admin'], default: 'user' },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Member', memberSchema);
+module.exports = mongoose.model('member', memberSchema);
 
 

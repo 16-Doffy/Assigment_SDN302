@@ -9,6 +9,8 @@ const expressLayouts = require('express-ejs-layouts');
 require('dotenv').config();
 
 const { connectToDatabase } = require('./config/database');
+const mongoose = require('mongoose');
+const Product = require('./models/Product');
 
 // Routers
 const apiCoursesRouter = require('./routes/api.courses');
@@ -63,33 +65,35 @@ app.use('/view/sections', viewSectionsRouter);
 app.use('/products', viewProductsRouter); // <-- mount products router here
 app.use('/profile', viewProfileRouter);
 
-// home
-app.get('/', (req, res) => res.redirect('/auth/signin'));
+// debug routes (place AFTER all app.use(...) router mounts)
+app.get('/test-products', (req, res) => res.send('OK - test-products route working'));
 
-// Error handler
+app.get('/debug/products', async (req, res) => {
+  try {
+    const docs = await Product.find().select('_id name').lean();
+    res.json(docs.map(d => ({ id: String(d._id), name: d.name || null })));
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+app.get('/debug/product/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const valid = mongoose.isValidObjectId(id);
+    const prod = valid ? await Product.findById(id).lean() : null;
+    res.json({ id, validObjectId: valid, found: !!prod, product: prod });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// move/ensure 404 handler is LAST in the file
 app.use((req, res, next) => {
   res.status(404);
   if (req.accepts('html')) return res.render('errors/404');
   res.json({ message: 'Not Found' });
 });
-
-// debug: liệt kê route đã mount
-app.get('/debug/routes', (req, res) => {
-  const routes = [];
-  app._router.stack.forEach(mw => {
-    if (mw.route && mw.route.path) {
-      routes.push({ path: mw.route.path, methods: mw.route.methods });
-    } else if (mw.name === 'router' && mw.handle && mw.handle.stack) {
-      mw.handle.stack.forEach(r => {
-        if (r.route && r.route.path) routes.push({ path: r.route.path, methods: r.route.methods });
-      });
-    }
-  });
-  res.json(routes);
-});
-
-// kiểm tra nhanh: trả về text nếu /products được mount (bỏ sau khi đã debug)
-app.get('/test-products', (req, res) => res.send('OK - test-products route working'));
 
 module.exports = app;
 

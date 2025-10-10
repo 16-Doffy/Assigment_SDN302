@@ -1,6 +1,6 @@
 [
   { "username": "student1", "password": "123456" },
-  { "username": "student2", "password": "password" }
+  { "username": "student2", "password": "123456" }
 ]
 
 

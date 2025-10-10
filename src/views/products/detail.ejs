@@ -1,43 +1,44 @@
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div>
-    <img class="w-full h-72 object-cover rounded" src="<%= product.imageUrl || 'https://via.placeholder.com/800x600' %>" alt="<%= product.name %>" />
-  </div>
-  <div>
-    <h1 class="text-3xl font-bold"><%= product.name %></h1>
-    <div class="text-gray-600"><%= product.brand %></div>
-    <div class="mt-3"><%= product.description %></div>
-    <div class="text-pink-600 font-bold text-xl mt-2">$<%= product.price.toFixed(2) %></div>
+<% /* product, feedbacks, myFeedback are passed from router */ %>
+<h1 class="text-2xl font-bold mb-4"><%= product.name %></h1>
 
-    <% if (member && (member.role === 'member' || member.role === 'admin')) { %>
-      <form class="mt-6 space-y-2" action="/products/<%= product._id %>/feedback" method="post">
-        <div>
-          <label class="block text-sm font-medium">Your feedback</label>
-          <textarea name="content" class="w-full border rounded p-2" required></textarea>
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Rating (1-5)</label>
-          <input class="border rounded p-2" type="number" name="rating" min="1" max="5" value="5" required />
-        </div>
-        <button class="px-4 py-2 bg-blue-600 text-white rounded" type="submit">Submit</button>
-        <p class="text-xs text-gray-500">Note: Only one active feedback at a time per member. Submitting a new one deactivates previous.</p>
-      </form>
-    <% } %>
-  </div>
+<div class="mb-6">
+  <p><%= product.description %></p>
+  <p class="font-bold text-pink-600">$<%= (product.price || 0).toFixed(2) %></p>
 </div>
 
-<div class="mt-8">
-  <h2 class="text-xl font-semibold mb-2">Feedback</h2>
-  <div class="space-y-3">
+<h2 class="text-xl font-semibold mb-2">Feedbacks</h2>
+<% if (feedbacks.length === 0) { %>
+  <p>No feedback yet.</p>
+<% } else { %>
+  <ul>
     <% feedbacks.forEach(f => { %>
-      <div class="border rounded p-3">
-        <div class="font-semibold"><%= f.member?.username || 'Member' %> - ⭐ <%= f.rating %></div>
-        <div><%= f.content %></div>
-      </div>
+      <li class="border p-3 mb-2">
+        <div class="text-sm text-gray-700"><strong><%= f.member && (f.member.fullname || f.member.username) %></strong> — <small><%= new Date(f.createdAt).toLocaleString() %></small></div>
+        <div class="mt-1"><%= f.comment %></div>
+        <div class="text-yellow-600">Rating: <%= f.rating %>/5</div>
+      </li>
     <% }) %>
-    <% if (feedbacks.length === 0) { %>
-      <div>No feedback yet.</div>
-    <% } %>
-  </div>
-</div>
+  </ul>
+<% } %>
+
+<% if (user) { %>
+  <h3 class="mt-6">Your feedback</h3>
+  <form method="post" action="/products/<%= product._id %>/feedback">
+    <div class="mb-2">
+      <label for="rating">Rating</label>
+      <select name="rating" id="rating">
+        <% for (let r=5;r>=1;r--) { %>
+          <option value="<%= r %>" <%= myFeedback && myFeedback.rating===r ? 'selected' : '' %>><%= r %></option>
+        <% } %>
+      </select>
+    </div>
+    <div class="mb-2">
+      <textarea name="comment" rows="4" required class="w-full border p-2"><%= myFeedback ? myFeedback.comment : '' %></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Save feedback</button>
+  </form>
+<% } else { %>
+  <p><a href="/auth/signin">Sign in</a> to leave feedback.</p>
+<% } %>
 
 
