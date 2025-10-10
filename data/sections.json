@@ -1,0 +1,6 @@
+[
+  { "sectionName": "Introduction", "sectionDescription": "Overview", "duration": 30, "isMainTask": true, "courseName": "JavaScript Basics" },
+  { "sectionName": "Async Programming", "sectionDescription": "Promises & async/await", "duration": 60, "isMainTask": false, "courseName": "NodeJS" }
+]
+
+

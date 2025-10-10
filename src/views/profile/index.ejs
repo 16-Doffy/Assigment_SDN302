@@ -1,0 +1,16 @@
+<h1 class="text-2xl font-bold mb-4">Edit Profile</h1>
+<form class="space-y-3" method="post" action="/profile">
+  <div>
+    <label class="block text-sm font-medium">Full name</label>
+    <input class="border rounded p-2 w-full" type="text" name="fullName" value="<%= values.fullName %>" required />
+    <% if (errors.fullName) { %><div class="text-red-600 text-sm"><%= errors.fullName %></div><% } %>
+  </div>
+  <div>
+    <label class="block text-sm font-medium">Birth year</label>
+    <input class="border rounded p-2" type="number" name="birthYear" min="1900" max="2100" value="<%= values.birthYear %>" required />
+    <% if (errors.birthYear) { %><div class="text-red-600 text-sm"><%= errors.birthYear %></div><% } %>
+  </div>
+  <button class="px-4 py-2 bg-blue-600 text-white rounded" type="submit">Save</button>
+</form>
+
+
