@@ -19,6 +19,8 @@ const viewAuthRouter = require('./routes/view.auth');
 const viewSectionsRouter = require('./routes/view.sections');
 const viewProductsRouter = require('./routes/view.products');
 const viewProfileRouter = require('./routes/view.profile');
+const viewUsersRouter = require('./routes/view.users');
+const viewDashboardRouter = require('./routes/view.dashboard');
 
 const { attachUser } = require('./middleware/authView');
 
@@ -30,8 +32,8 @@ connectToDatabase();
 // Views
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.use(expressLayouts);
-app.set('layout', 'layouts/main');
+// app.use(expressLayouts); // Tắt express-ejs-layouts
+// app.set('layout', 'layouts/main');
 
 // Middlewares
 app.use(logger('dev'));
@@ -64,6 +66,17 @@ app.use('/auth', viewAuthRouter);       // view signin
 app.use('/view/sections', viewSectionsRouter);
 app.use('/products', viewProductsRouter); // <-- mount products router here
 app.use('/profile', viewProfileRouter);
+app.use('/view/users', viewUsersRouter);
+app.use('/dashboard', viewDashboardRouter);
+
+// Root route - redirect to appropriate page
+app.get('/', (req, res) => {
+  if (req.user) {
+    res.redirect('/dashboard');
+  } else {
+    res.redirect('/auth/signin');
+  }
+});
 
 // debug routes (place AFTER all app.use(...) router mounts)
 app.get('/test-products', (req, res) => res.send('OK - test-products route working'));

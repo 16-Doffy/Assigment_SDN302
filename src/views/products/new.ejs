@@ -1,0 +1,175 @@
+<%- include('../layouts/main') %>
+<div class="container mx-auto px-4 py-8">
+  <!-- Page Header -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+        <i class="fas fa-plus mr-3 text-purple-600"></i>Thêm sản phẩm mới
+      </h1>
+      <p class="text-gray-600 mt-2 flex items-center">
+        <i class="fas fa-info-circle mr-2"></i>Tạo sản phẩm mới trong hệ thống
+      </p>
+    </div>
+    <a href="/products" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center">
+      <i class="fas fa-arrow-left mr-2"></i>Quay lại
+    </a>
+  </div>
+
+  <div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6">
+        <h3 class="text-xl font-semibold flex items-center">
+          <i class="fas fa-box mr-2"></i>Thông tin sản phẩm
+        </h3>
+      </div>
+      
+      <div class="p-6">
+        <form action="/products/new" method="POST" enctype="multipart/form-data">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Tên sản phẩm -->
+            <div class="md:col-span-2">
+              <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-tag mr-2"></i>Tên sản phẩm <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="name" name="name" 
+                     value="<%= typeof formData !== 'undefined' ? formData.name : '' %>" 
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                     required>
+              <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'name')) { %>
+                <p class="text-red-500 text-sm mt-1">
+                  <i class="fas fa-exclamation-circle mr-1"></i>
+                  <%= errors.find(e => e.path === 'name').msg %>
+                </p>
+              <% } %>
+            </div>
+            
+            <!-- Giá -->
+            <div>
+              <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-dollar-sign mr-2"></i>Giá <span class="text-red-500">*</span>
+              </label>
+              <input type="number" step="0.01" min="0" id="price" name="price" 
+                     value="<%= typeof formData !== 'undefined' ? formData.price : '' %>" 
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                     required>
+              <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'price')) { %>
+                <p class="text-red-500 text-sm mt-1">
+                  <i class="fas fa-exclamation-circle mr-1"></i>
+                  <%= errors.find(e => e.path === 'price').msg %>
+                </p>
+              <% } %>
+            </div>
+            
+            <!-- Thương hiệu -->
+            <div>
+              <label for="brand" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-building mr-2"></i>Thương hiệu
+              </label>
+              <input type="text" id="brand" name="brand" 
+                     value="<%= typeof formData !== 'undefined' ? formData.brand : '' %>" 
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+              <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'brand')) { %>
+                <p class="text-red-500 text-sm mt-1">
+                  <i class="fas fa-exclamation-circle mr-1"></i>
+                  <%= errors.find(e => e.path === 'brand').msg %>
+                </p>
+              <% } %>
+            </div>
+            
+            <!-- Danh mục -->
+            <div>
+              <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-layer-group mr-2"></i>Danh mục
+              </label>
+              <select id="category" name="category" 
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                <option value="General" <%= (typeof formData !== 'undefined' && formData.category === 'General') ? 'selected' : '' %>>General</option>
+                <option value="Electronics" <%= (typeof formData !== 'undefined' && formData.category === 'Electronics') ? 'selected' : '' %>>Electronics</option>
+                <option value="Clothing" <%= (typeof formData !== 'undefined' && formData.category === 'Clothing') ? 'selected' : '' %>>Clothing</option>
+                <option value="Books" <%= (typeof formData !== 'undefined' && formData.category === 'Books') ? 'selected' : '' %>>Books</option>
+                <option value="Home" <%= (typeof formData !== 'undefined' && formData.category === 'Home') ? 'selected' : '' %>>Home</option>
+                <option value="Sports" <%= (typeof formData !== 'undefined' && formData.category === 'Sports') ? 'selected' : '' %>>Sports</option>
+              </select>
+              <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'category')) { %>
+                <p class="text-red-500 text-sm mt-1">
+                  <i class="fas fa-exclamation-circle mr-1"></i>
+                  <%= errors.find(e => e.path === 'category').msg %>
+                </p>
+              <% } %>
+            </div>
+            
+            <!-- Số lượng tồn kho -->
+            <div>
+              <label for="stock" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-boxes mr-2"></i>Số lượng tồn kho
+              </label>
+              <input type="number" min="0" id="stock" name="stock" 
+                     value="<%= typeof formData !== 'undefined' ? formData.stock : '0' %>" 
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+              <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'stock')) { %>
+                <p class="text-red-500 text-sm mt-1">
+                  <i class="fas fa-exclamation-circle mr-1"></i>
+                  <%= errors.find(e => e.path === 'stock').msg %>
+                </p>
+              <% } %>
+            </div>
+            
+            <!-- URL hình ảnh -->
+            <div>
+              <label for="imageUrl" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-image mr-2"></i>URL hình ảnh
+              </label>
+              <input type="url" id="imageUrl" name="imageUrl" 
+                     value="<%= typeof formData !== 'undefined' ? formData.imageUrl : '' %>" 
+                     placeholder="https://example.com/image.jpg"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+              <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'imageUrl')) { %>
+                <p class="text-red-500 text-sm mt-1">
+                  <i class="fas fa-exclamation-circle mr-1"></i>
+                  <%= errors.find(e => e.path === 'imageUrl').msg %>
+                </p>
+              <% } %>
+            </div>
+          </div>
+          
+          <!-- Mô tả sản phẩm -->
+          <div class="mt-6">
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-align-left mr-2"></i>Mô tả sản phẩm
+            </label>
+            <textarea id="description" name="description" rows="4" 
+                      placeholder="Mô tả chi tiết về sản phẩm..."
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"><%= typeof formData !== 'undefined' ? formData.description : '' %></textarea>
+            <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'description')) { %>
+              <p class="text-red-500 text-sm mt-1">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                <%= errors.find(e => e.path === 'description').msg %>
+              </p>
+            <% } %>
+          </div>
+          
+          <!-- Checkbox hoạt động -->
+          <div class="mt-6">
+            <label class="flex items-center">
+              <input type="checkbox" id="isActive" name="isActive" checked 
+                     class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+              <span class="ml-2 text-sm text-gray-700">
+                <i class="fas fa-toggle-on mr-2"></i>Sản phẩm hoạt động
+              </span>
+            </label>
+          </div>
+          
+          <!-- Buttons -->
+          <div class="flex justify-end space-x-4 mt-8">
+            <a href="/products" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center">
+              <i class="fas fa-times mr-2"></i>Hủy
+            </a>
+            <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center">
+              <i class="fas fa-save mr-2"></i>Lưu sản phẩm
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

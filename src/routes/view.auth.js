@@ -19,7 +19,7 @@ router.post('/signin', async (req, res) => {
   req.session.userId = member._id.toString();
   req.session.member = { id: member._id.toString(), username: member.username, role: member.role };
 
-  res.redirect('/view/sections');
+  res.redirect('/dashboard');
 });
 
 router.post('/signout', (req, res) => {

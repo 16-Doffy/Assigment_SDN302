@@ -1,44 +1,208 @@
-<% /* product, feedbacks, myFeedback are passed from router */ %>
-<h1 class="text-2xl font-bold mb-4"><%= product.name %></h1>
+<%- include('../layouts/main') %>
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="page-title">
+            <i class="fas fa-box me-3 fa-bounce"></i><%= product.name %>
+          </h1>
+          <p class="text-muted">
+            <i class="fas fa-info-circle me-2"></i>Chi tiết sản phẩm
+          </p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="/products" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Quay lại
+          </a>
+          <% if (member && member.role === 'admin') { %>
+            <a href="/products/<%= product._id %>/edit" class="btn btn-warning">
+              <i class="fas fa-edit me-2"></i>Chỉnh sửa
+            </a>
+          <% } %>
+        </div>
+      </div>
 
-<div class="mb-6">
-  <p><%= product.description %></p>
-  <p class="font-bold text-pink-600">$<%= (product.price || 0).toFixed(2) %></p>
-</div>
+      <div class="row">
+        <!-- Product Info -->
+        <div class="col-lg-8">
+          <div class="admin-card">
+            <div class="card-header">
+              <h5><i class="fas fa-info-circle me-2"></i>Thông tin sản phẩm</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <% if (product.imageUrl) { %>
+                    <img src="<%= product.imageUrl %>" alt="<%= product.name %>" class="img-fluid rounded">
+                  <% } else { %>
+                    <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 300px;">
+                      <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="col-md-8">
+                  <h3 class="mb-3"><%= product.name %></h3>
+                  
+                  <div class="row mb-3">
+                    <div class="col-sm-6">
+                      <strong><i class="fas fa-dollar-sign me-2"></i>Giá:</strong>
+                      <span class="h4 text-success ms-2">$<%= product.price.toFixed(2) %></span>
+                    </div>
+                    <div class="col-sm-6">
+                      <strong><i class="fas fa-building me-2"></i>Thương hiệu:</strong>
+                      <span class="ms-2"><%= product.brand || 'Không có' %></span>
+                    </div>
+                  </div>
 
-<h2 class="text-xl font-semibold mb-2">Feedbacks</h2>
-<% if (feedbacks.length === 0) { %>
-  <p>No feedback yet.</p>
-<% } else { %>
-  <ul>
-    <% feedbacks.forEach(f => { %>
-      <li class="border p-3 mb-2">
-        <div class="text-sm text-gray-700"><strong><%= f.member && (f.member.fullname || f.member.username) %></strong> — <small><%= new Date(f.createdAt).toLocaleString() %></small></div>
-        <div class="mt-1"><%= f.comment %></div>
-        <div class="text-yellow-600">Rating: <%= f.rating %>/5</div>
-      </li>
-    <% }) %>
-  </ul>
-<% } %>
+                  <div class="row mb-3">
+                    <div class="col-sm-6">
+                      <strong><i class="fas fa-layer-group me-2"></i>Danh mục:</strong>
+                      <span class="badge bg-info ms-2"><%= product.category || 'General' %></span>
+                    </div>
+                    <div class="col-sm-6">
+                      <strong><i class="fas fa-boxes me-2"></i>Tồn kho:</strong>
+                      <span class="badge <%= product.stock > 0 ? 'bg-success' : 'bg-danger' %> ms-2">
+                        <%= product.stock %>
+                      </span>
+                    </div>
+                  </div>
 
-<% if (user) { %>
-  <h3 class="mt-6">Your feedback</h3>
-  <form method="post" action="/products/<%= product._id %>/feedback">
-    <div class="mb-2">
-      <label for="rating">Rating</label>
-      <select name="rating" id="rating">
-        <% for (let r=5;r>=1;r--) { %>
-          <option value="<%= r %>" <%= myFeedback && myFeedback.rating===r ? 'selected' : '' %>><%= r %></option>
-        <% } %>
-      </select>
+                  <div class="mb-3">
+                    <strong><i class="fas fa-toggle-on me-2"></i>Trạng thái:</strong>
+                    <span class="badge <%= product.isActive ? 'bg-success' : 'bg-secondary' %> ms-2">
+                      <%= product.isActive ? 'Hoạt động' : 'Tạm dừng' %>
+                    </span>
+                  </div>
+
+                  <% if (product.description) { %>
+                    <div class="mb-3">
+                      <strong><i class="fas fa-align-left me-2"></i>Mô tả:</strong>
+                      <p class="mt-2"><%= product.description %></p>
+                    </div>
+                  <% } %>
+
+                  <div class="mb-3">
+                    <strong><i class="fas fa-calendar me-2"></i>Ngày tạo:</strong>
+                    <span class="ms-2"><%= new Date(product.createdAt).toLocaleDateString('vi-VN') %></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback Section -->
+        <div class="col-lg-4">
+          <div class="admin-card">
+            <div class="card-header">
+              <h5><i class="fas fa-comments me-2"></i>Đánh giá</h5>
+            </div>
+            <div class="card-body">
+              <% if (member && (member.role === 'member' || member.role === 'admin')) { %>
+                <% if (myFeedback) { %>
+                  <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Bạn đã đánh giá sản phẩm này
+                  </div>
+                  <div class="border p-3 rounded mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <strong>Đánh giá của bạn:</strong>
+                      <div>
+                        <% for (let i = 1; i <= 5; i++) { %>
+                          <i class="fas fa-star <%= i <= myFeedback.rating ? 'text-warning' : 'text-muted' %>"></i>
+                        <% } %>
+                      </div>
+                    </div>
+                    <p class="mb-0"><%= myFeedback.comment %></p>
+                    <small class="text-muted">
+                      <i class="fas fa-clock me-1"></i>
+                      <%= new Date(myFeedback.updatedAt).toLocaleDateString('vi-VN') %>
+                    </small>
+                  </div>
+                <% } else { %>
+                  <h6 class="mb-3">Viết đánh giá:</h6>
+                  <form action="/products/<%= product._id %>/feedback" method="POST">
+                    <div class="mb-3">
+                      <label class="form-label">Đánh giá:</label>
+                      <div class="rating mb-2">
+                        <% for (let i = 1; i <= 5; i++) { %>
+                          <input type="radio" name="rating" value="<%= i %>" id="star<%= i %>" <%= i === 5 ? 'checked' : '' %>>
+                          <label for="star<%= i %>" class="star">★</label>
+                        <% } %>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <textarea class="form-control form-control-admin" name="comment" rows="3" 
+                                placeholder="Nhận xét về sản phẩm..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-admin-primary w-100">
+                      <i class="fas fa-paper-plane me-2"></i>Gửi đánh giá
+                    </button>
+                  </form>
+                <% } %>
+              <% } else { %>
+                <div class="alert alert-warning">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  Bạn cần đăng nhập với tài khoản member để đánh giá sản phẩm
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Recent Feedbacks -->
+          <div class="admin-card mt-4">
+            <div class="card-header">
+              <h5><i class="fas fa-list me-2"></i>Đánh giá gần đây</h5>
+            </div>
+            <div class="card-body">
+              <% if (feedbacks && feedbacks.length > 0) { %>
+                <% feedbacks.slice(0, 5).forEach(feedback => { %>
+                  <div class="border-bottom pb-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <strong><%= feedback.member.username %></strong>
+                      <div>
+                        <% for (let i = 1; i <= 5; i++) { %>
+                          <i class="fas fa-star <%= i <= feedback.rating ? 'text-warning' : 'text-muted' %>"></i>
+                        <% } %>
+                      </div>
+                    </div>
+                    <p class="mb-2"><%= feedback.comment %></p>
+                    <small class="text-muted">
+                      <i class="fas fa-clock me-1"></i>
+                      <%= new Date(feedback.createdAt).toLocaleDateString('vi-VN') %>
+                    </small>
+                  </div>
+                <% }) %>
+              <% } else { %>
+                <p class="text-muted text-center">
+                  <i class="fas fa-comment-slash fa-2x mb-2"></i><br>
+                  Chưa có đánh giá nào
+                </p>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="mb-2">
-      <textarea name="comment" rows="4" required class="w-full border p-2"><%= myFeedback ? myFeedback.comment : '' %></textarea>
-    </div>
-    <button class="btn btn-primary" type="submit">Save feedback</button>
-  </form>
-<% } else { %>
-  <p><a href="/auth/signin">Sign in</a> to leave feedback.</p>
-<% } %>
+  <style>
+    .rating {
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+    }
+    .rating input {
+      display: none;
+    }
+    .rating label {
+      font-size: 1.5rem;
+      color: #ddd;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .rating label:hover,
+    .rating label:hover ~ label,
+    .rating input:checked ~ label {
+      color: #ffc107;
+    }
+  </style>
 
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

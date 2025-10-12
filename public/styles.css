@@ -1,8 +1,250 @@
-body { font-family: Arial, Helvetica, sans-serif; margin: 20px; }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 6px 10px; }
-label { display:block; margin: 8px 0 4px; }
-input[type=text], input[type=number], textarea, select { width: 100%; padding: 8px; }
-button { padding: 8px 12px; cursor: pointer; }
+/* Custom Admin Styles */
+body { 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  background-color: #f8f9fa;
+}
 
+.navbar-admin {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-admin .navbar-brand {
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.navbar-admin .nav-link {
+  color: rgba(255,255,255,0.9) !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.navbar-admin .nav-link:hover {
+  color: white !important;
+  transform: translateY(-1px);
+}
+
+.admin-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.admin-card .card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 15px 15px 0 0 !important;
+  border: none;
+  font-weight: 600;
+}
+
+.btn-admin-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 25px;
+  padding: 10px 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-admin-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.table-admin {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.table-admin thead th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 15px;
+}
+
+.table-admin tbody tr {
+  transition: all 0.3s ease;
+}
+
+.table-admin tbody tr:hover {
+  background-color: #f8f9ff;
+  transform: scale(1.01);
+}
+
+.badge-admin {
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.badge-admin.danger {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+}
+
+.badge-admin.primary {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+}
+
+.badge-admin.secondary {
+  background: linear-gradient(135deg, #a8edea, #fed6e3);
+  color: #333;
+}
+
+.stats-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 15px;
+  padding: 25px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.stats-card h4 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.form-control-admin {
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+  padding: 12px 15px;
+  transition: all 0.3s ease;
+}
+
+.form-control-admin:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.sidebar-admin {
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  border-radius: 0 20px 20px 0;
+}
+
+.sidebar-admin .nav-link {
+  color: rgba(255,255,255,0.8);
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin: 5px 10px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-admin .nav-link:hover,
+.sidebar-admin .nav-link.active {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  transform: translateX(5px);
+}
+
+.main-content {
+  background: #f8f9fa;
+  min-height: 100vh;
+  padding: 30px;
+}
+
+.page-title {
+  color: #2c3e50;
+  font-weight: 700;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 50px;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2px;
+}
+
+/* Custom animations for icons */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+.fa-shake {
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+/* Enhanced hover effects for cards */
+.stats-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  transition: transform 0.3s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  transition: transform 0.3s ease;
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(66, 153, 225, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(66, 153, 225, 0); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Gradient text animation */
+@keyframes gradient-text {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-text {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-text 3s ease infinite;
+}
+
+/* Icon rotation animation */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.fa-rotate {
+  animation: rotate 2s linear infinite;
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.fa-float {
+  animation: float 3s ease-in-out infinite;
+}
 

@@ -11,16 +11,22 @@ async function run() {
 
   // tạo admin nếu chưa có
   const usersToEnsure = [
-    { username: 'admin', password: 'Admin@123', role: 'admin' },
-    { username: 'alice', password: 'User@123', role: 'user' },
-    { username: 'guest', password: 'Guest@123', role: 'guest' }
+    { username: 'admin', password: 'Admin@123', role: 'admin', fullname: 'Administrator', birthYear: 1990 },
+    { username: 'member1', password: 'Member@123', role: 'member', fullname: 'Nguyen Van A', birthYear: 1995 },
+    { username: 'guest1', password: 'Guest@123', role: 'guest', fullname: 'Guest User', birthYear: 2000 }
   ];
 
   for (const u of usersToEnsure) {
     let m = await Member.findOne({ username: u.username });
     if (!m) {
       const hash = bcrypt.hashSync(u.password, 10);
-      m = new Member({ username: u.username, password: hash, role: u.role });
+      m = new Member({ 
+        username: u.username, 
+        password: hash, 
+        role: u.role,
+        fullname: u.fullname,
+        birthYear: u.birthYear
+      });
       await m.save();
       console.log('Created user:', u.username, '/', u.password, 'role=', u.role);
     } else {

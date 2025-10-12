@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - PE SDN302</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="/styles.css" rel="stylesheet">
+  <meta http-equiv="Content-Security-Policy"
+  content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self'">
+</head>
+<body>
+  <header class="bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg">
+    <nav class="container mx-auto flex items-center justify-between p-4">
+      <div class="flex items-center space-x-6">
+        <a href="/dashboard" class="flex items-center space-x-2 text-xl font-bold">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Admin Panel</span>
+        </a>
+        <% if (typeof member !== 'undefined' && member) { %>
+          <div class="hidden md:flex items-center space-x-4">
+            <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/dashboard">
+              <i class="fas fa-home"></i>
+              <span>Dashboard</span>
+            </a>
+            <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/view/sections">
+              <i class="fas fa-list"></i>
+              <span>Sections</span>
+            </a>
+            <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/products">
+              <i class="fas fa-box"></i>
+              <span>Products</span>
+            </a>
+            <% if (member.role === 'admin') { %>
+              <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/view/users">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <% if (typeof member !== 'undefined' && member) { %>
+          <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/profile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <div class="flex items-center space-x-2">
+            <span class="text-sm">
+              Xin chào, <strong><%= member.username %></strong>
+            </span>
+            <span class="px-3 py-1 rounded-full text-xs font-semibold <%= member.role === 'admin' ? 'bg-red-500' : member.role === 'member' ? 'bg-blue-500' : 'bg-gray-500' %>">
+              <%= member.role %>
+            </span>
+          </div>
+          <form action="/auth/signout" method="post" class="inline-block">
+            <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-1" type="submit">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Sign out</span>
+            </button>
+          </form>
+        <% } else { %>
+          <a class="bg-white text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition-colors duration-200" href="/auth/signin">Đăng nhập</a>
+        <% } %>
+      </div>
+    </nav>
+  </header>
+
+  <main class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Page Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+          <i class="fas fa-tachometer-alt mr-3 text-purple-600"></i>Dashboard
+        </h1>
+        <p class="text-gray-600 mt-2">Tổng quan hệ thống quản lý</p>
+      </div>
+
+      <!-- Welcome Banner -->
+      <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-8">
+        <div class="flex items-center">
+          <i class="fas fa-info-circle text-blue-500 mr-3"></i>
+          <p class="text-blue-700">
+            Xin chào, <strong><%= user ? user.username : 'User' %></strong> - Bạn đang ở chế độ <strong><%= user ? user.role : 'guest' %></strong>
+          </p>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-3xl font-bold"><%= stats.totalProducts %></h3>
+              <p class="text-purple-100">Sản phẩm</p>
+            </div>
+            <i class="fas fa-box text-4xl opacity-75"></i>
+          </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg p-6 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-3xl font-bold"><%= stats.totalSections %></h3>
+              <p class="text-teal-100">Sections</p>
+            </div>
+            <i class="fas fa-list text-4xl opacity-75"></i>
+          </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-6 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-3xl font-bold"><%= stats.totalCourses %></h3>
+              <p class="text-red-100">Khóa học</p>
+            </div>
+            <i class="fas fa-graduation-cap text-4xl opacity-75"></i>
+          </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-pink-500 to-pink-600 rounded-lg p-6 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-3xl font-bold"><%= stats.totalFeedbacks %></h3>
+              <p class="text-pink-100">Đánh giá</p>
+            </div>
+            <i class="fas fa-comments text-4xl opacity-75"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role-specific Content -->
+      <% if (user && user.role === 'admin') { %>
+        <!-- Admin Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-users text-2xl text-blue-600 mr-3"></i>
+              <h3 class="text-xl font-semibold text-gray-800">Thống kê người dùng</h3>
+            </div>
+            <div class="flex items-center mb-4">
+              <div class="bg-blue-100 p-3 rounded-full mr-4">
+                <i class="fas fa-user-friends text-2xl text-blue-600"></i>
+              </div>
+              <div>
+                <h4 class="text-3xl font-bold text-gray-800"><%= stats.totalUsers %></h4>
+                <p class="text-gray-600">Tổng người dùng</p>
+              </div>
+            </div>
+            <% if (stats.usersByRole && stats.usersByRole.length > 0) { %>
+              <div class="grid grid-cols-2 gap-2">
+                <% stats.usersByRole.forEach(item => { %>
+                  <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <span class="text-sm font-medium text-gray-700"><%= item._id %></span>
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold <%= item._id === 'admin' ? 'bg-red-100 text-red-800' : item._id === 'member' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' %>">
+                      <%= item.count %>
+                    </span>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-user-plus text-2xl text-green-600 mr-3"></i>
+              <h3 class="text-xl font-semibold text-gray-800">Người dùng mới</h3>
+            </div>
+            <% if (stats.recentUsers && stats.recentUsers.length > 0) { %>
+              <div class="space-y-3">
+                <% stats.recentUsers.forEach(user => { %>
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p class="font-semibold text-gray-800"><%= user.username %></p>
+                      <p class="text-sm text-gray-600"><%= new Date(user.createdAt).toLocaleDateString('vi-VN') %></p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold <%= user.role === 'admin' ? 'bg-red-100 text-red-800' : user.role === 'member' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' %>">
+                      <%= user.role %>
+                    </span>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <p class="text-gray-500 text-center py-4">Chưa có người dùng nào</p>
+            <% } %>
+          </div>
+        </div>
+      <% } else if (user && user.role === 'member') { %>
+        <!-- Member Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-chart-line text-2xl text-green-600 mr-3"></i>
+              <h3 class="text-xl font-semibold text-gray-800">Hoạt động của bạn</h3>
+            </div>
+            <div class="flex items-center mb-4">
+              <div class="bg-green-100 p-3 rounded-full mr-4">
+                <i class="fas fa-comments text-2xl text-green-600"></i>
+              </div>
+              <div>
+                <h4 class="text-3xl font-bold text-gray-800"><%= stats.myFeedbacks %></h4>
+                <p class="text-gray-600">Đánh giá đã viết</p>
+              </div>
+            </div>
+            <% if (stats.recentFeedbacks && stats.recentFeedbacks.length > 0) { %>
+              <div class="space-y-3">
+                <% stats.recentFeedbacks.forEach(feedback => { %>
+                  <div class="p-3 bg-gray-50 rounded-lg">
+                    <div class="flex justify-between items-start mb-2">
+                      <h5 class="font-semibold text-gray-800"><%= feedback.product.name %></h5>
+                      <span class="text-sm text-gray-500"><%= new Date(feedback.createdAt).toLocaleDateString('vi-VN') %></span>
+                    </div>
+                    <p class="text-sm text-gray-600"><%= feedback.comment.substring(0, 50) %>...</p>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <p class="text-gray-500 text-center py-4">Bạn chưa viết đánh giá nào</p>
+            <% } %>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-info-circle text-2xl text-blue-600 mr-3"></i>
+              <h3 class="text-xl font-semibold text-gray-800">Thông tin tài khoản</h3>
+            </div>
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-sm font-medium text-gray-600">Username</label>
+                  <p class="text-lg font-semibold text-gray-800"><%= user ? user.username : 'N/A' %></p>
+                </div>
+                <div>
+                  <label class="text-sm font-medium text-gray-600">Role</label>
+                  <p>
+                    <span class="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                      <%= user ? user.role : 'guest' %>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <% if (user && user.fullname) { %>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="text-sm font-medium text-gray-600">Họ tên</label>
+                    <p class="text-lg font-semibold text-gray-800"><%= user.fullname %></p>
+                  </div>
+                  <div>
+                    <label class="text-sm font-medium text-gray-600">Năm sinh</label>
+                    <p class="text-lg font-semibold text-gray-800"><%= user.birthYear || 'Chưa cập nhật' %></p>
+                  </div>
+                </div>
+              <% } %>
+              <a href="/profile" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200">
+                <i class="fas fa-edit mr-2"></i>
+                Cập nhật thông tin
+              </a>
+            </div>
+          </div>
+        </div>
+      <% } else { %>
+        <!-- Guest Dashboard -->
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+          <div class="mb-6">
+            <i class="fas fa-info-circle text-6xl text-gray-400 mb-4"></i>
+            <h3 class="text-2xl font-semibold text-gray-800 mb-2">Chào mừng khách</h3>
+            <p class="text-gray-600">Bạn đang xem với quyền khách. Để có thêm chức năng, vui lòng đăng ký tài khoản member.</p>
+          </div>
+          <a href="/auth/signin" class="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200">
+            <i class="fas fa-sign-in-alt mr-2"></i>
+            Đăng nhập
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </main>
+</body>
+</html>

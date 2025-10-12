@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const { ensureAuthenticated } = require('../middleware/authView');
+const { requirePermission, PERMISSIONS } = require('../middleware/authorize');
 const Section = require('../models/Section');
 const Course = require('../models/Course');
 
@@ -18,13 +19,13 @@ function formatTitleCase(value) {
 }
 
 // List
-router.get('/', async (req, res) => {
+router.get('/', requirePermission(PERMISSIONS.SECTIONS.VIEW), async (req, res) => {
   const sections = await Section.find().populate('course').sort({ createdAt: -1 });
   res.render('sections/index', { sections, member: req.session.member });
 });
 
 // Create form
-router.get('/new', async (req, res) => {
+router.get('/new', requirePermission(PERMISSIONS.SECTIONS.CREATE), async (req, res) => {
   const courses = await Course.find().sort({ courseName: 1 });
   res.render('sections/new', {
     courses,
@@ -36,6 +37,7 @@ router.get('/new', async (req, res) => {
 // Create submit
 router.post(
   '/',
+  requirePermission(PERMISSIONS.SECTIONS.CREATE),
   body('sectionName').matches(/^(?:[A-Z][a-zA-Z0-9]*)(?:\s+[A-Z][a-zA-Z0-9]*)*$/),
   body('sectionDescription').isString().trim().notEmpty(),
   body('duration').isInt({ min: 0 }),
@@ -64,7 +66,7 @@ router.post(
 );
 
 // Edit form
-router.get('/:id/edit', async (req, res) => {
+router.get('/:id/edit', requirePermission(PERMISSIONS.SECTIONS.UPDATE), async (req, res) => {
   const section = await Section.findById(req.params.id);
   if (!section) return res.redirect('/view/sections');
   const courses = await Course.find().sort({ courseName: 1 });
@@ -85,6 +87,7 @@ router.get('/:id/edit', async (req, res) => {
 // Update submit
 router.put(
   '/:id',
+  requirePermission(PERMISSIONS.SECTIONS.UPDATE),
   param('id').isMongoId(),
   body('sectionName').matches(/^(?:[A-Z][a-zA-Z0-9]*)(?:\s+[A-Z][a-zA-Z0-9]*)*$/),
   body('sectionDescription').isString().trim().notEmpty(),
@@ -114,7 +117,7 @@ router.put(
 );
 
 // Delete with confirmation
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requirePermission(PERMISSIONS.SECTIONS.DELETE), async (req, res) => {
   await Section.findByIdAndDelete(req.params.id);
   res.redirect('/view/sections');
 });
