@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - PE SDN302</title>
+  <title>Dashboard - Assignment - SDN302</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link href="/styles.css" rel="stylesheet">
   <meta http-equiv="Content-Security-Policy"
-  content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self'">
+  content="default-src 'self'; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' http://localhost:5000">
 </head>
 <body>
   <header class="bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg">
@@ -44,10 +44,12 @@
       
       <div class="flex items-center space-x-4">
         <% if (typeof member !== 'undefined' && member) { %>
-          <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/profile">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-          </a>
+          <% if (member.role !== 'admin') { %>
+            <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/profile">
+              <i class="fas fa-user"></i>
+              <span>Profile</span>
+            </a>
+          <% } %>
           <div class="flex items-center space-x-2">
             <span class="text-sm">
               Xin chào, <strong><%= member.username %></strong>

@@ -1,160 +1,255 @@
-<%- include('../layouts/main') %>
-    <div class="container-fluid">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Product - PE SDN302</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="/styles.css" rel="stylesheet">
+  <meta http-equiv="Content-Security-Policy"
+  content="default-src 'self'; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' http://localhost:5000">
+</head>
+<body>
+  <header class="bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg">
+    <nav class="container mx-auto flex items-center justify-between p-4">
+      <div class="flex items-center space-x-6">
+        <a href="/dashboard" class="flex items-center space-x-2 text-xl font-bold">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Admin Panel</span>
+        </a>
+        <% if (typeof member !== 'undefined' && member) { %>
+          <div class="hidden md:flex items-center space-x-4">
+            <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/dashboard">
+              <i class="fas fa-home"></i>
+              <span>Dashboard</span>
+            </a>
+            <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/view/sections">
+              <i class="fas fa-list"></i>
+              <span>Sections</span>
+            </a>
+            <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/products">
+              <i class="fas fa-box"></i>
+              <span>Products</span>
+            </a>
+            <% if (member.role === 'admin') { %>
+              <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/view/users">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <% if (typeof member !== 'undefined' && member) { %>
+          <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/profile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <div class="flex items-center space-x-2">
+            <span class="text-sm">
+              Xin chào, <strong><%= member.username %></strong>
+            </span>
+            <span class="px-3 py-1 rounded-full text-xs font-semibold <%= member.role === 'admin' ? 'bg-red-500' : member.role === 'member' ? 'bg-blue-500' : 'bg-gray-500' %>">
+              <%= member.role %>
+            </span>
+          </div>
+          <form action="/auth/signout" method="post" class="inline-block">
+            <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-1" type="submit">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Sign out</span>
+            </button>
+          </form>
+        <% } else { %>
+          <a class="bg-white text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition-colors duration-200" href="/auth/signin">Đăng nhập</a>
+        <% } %>
+      </div>
+    </nav>
+  </header>
+
+  <main class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Page Header -->
+      <div class="flex justify-between items-center mb-8">
         <div>
-          <h1 class="page-title">
-            <i class="fas fa-edit me-3 fa-bounce"></i>Chỉnh sửa sản phẩm
+          <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-edit mr-3 text-purple-600"></i>Chỉnh sửa sản phẩm
           </h1>
-          <p class="text-muted">
-            <i class="fas fa-info-circle me-2"></i>Cập nhật thông tin sản phẩm: <strong><%= product.name %></strong>
+          <p class="text-gray-600 mt-2 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>Cập nhật thông tin sản phẩm: <strong><%= product.name %></strong>
           </p>
         </div>
-        <a href="/products" class="btn btn-secondary">
-          <i class="fas fa-arrow-left me-2"></i>Quay lại
-        </a>
+        <div class="flex space-x-4">
+          <a href="/products" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i>Quay lại
+          </a>
+          <a href="/products/<%= product._id %>" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center">
+            <i class="fas fa-eye mr-2"></i>Xem chi tiết
+          </a>
+        </div>
       </div>
 
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <div class="admin-card">
-            <div class="card-header">
-              <h5><i class="fas fa-box me-2"></i>Thông tin sản phẩm</h5>
-            </div>
-            <div class="card-body">
-              <form action="/products/<%= product._id %>?_method=PUT" method="POST">
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="name" class="form-label">
-                      <i class="fas fa-tag me-2"></i>Tên sản phẩm <span class="text-danger">*</span>
-                    </label>
-                    <input type="text" class="form-control form-control-admin" id="name" name="name" 
-                           value="<%= typeof formData !== 'undefined' ? formData.name : product.name %>" required>
-                    <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'name')) { %>
-                      <div class="text-danger mt-1">
-                        <i class="fas fa-exclamation-circle me-1"></i>
-                        <%= errors.find(e => e.path === 'name').msg %>
-                      </div>
-                    <% } %>
-                  </div>
-                  
-                  <div class="col-md-6 mb-3">
-                    <label for="price" class="form-label">
-                      <i class="fas fa-dollar-sign me-2"></i>Giá <span class="text-danger">*</span>
-                    </label>
-                    <input type="number" step="0.01" min="0" class="form-control form-control-admin" id="price" name="price" 
-                           value="<%= typeof formData !== 'undefined' ? formData.price : product.price %>" required>
-                    <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'price')) { %>
-                      <div class="text-danger mt-1">
-                        <i class="fas fa-exclamation-circle me-1"></i>
-                        <%= errors.find(e => e.path === 'price').msg %>
-                      </div>
-                    <% } %>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="brand" class="form-label">
-                      <i class="fas fa-building me-2"></i>Thương hiệu
-                    </label>
-                    <input type="text" class="form-control form-control-admin" id="brand" name="brand" 
-                           value="<%= typeof formData !== 'undefined' ? formData.brand : (product.brand || '') %>">
-                    <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'brand')) { %>
-                      <div class="text-danger mt-1">
-                        <i class="fas fa-exclamation-circle me-1"></i>
-                        <%= errors.find(e => e.path === 'brand').msg %>
-                      </div>
-                    <% } %>
-                  </div>
-                  
-                  <div class="col-md-6 mb-3">
-                    <label for="category" class="form-label">
-                      <i class="fas fa-layer-group me-2"></i>Danh mục
-                    </label>
-                    <select class="form-control form-control-admin" id="category" name="category">
-                      <option value="General" <%= ((typeof formData !== 'undefined' ? formData.category : product.category) === 'General') ? 'selected' : '' %>>General</option>
-                      <option value="Electronics" <%= ((typeof formData !== 'undefined' ? formData.category : product.category) === 'Electronics') ? 'selected' : '' %>>Electronics</option>
-                      <option value="Clothing" <%= ((typeof formData !== 'undefined' ? formData.category : product.category) === 'Clothing') ? 'selected' : '' %>>Clothing</option>
-                      <option value="Books" <%= ((typeof formData !== 'undefined' ? formData.category : product.category) === 'Books') ? 'selected' : '' %>>Books</option>
-                      <option value="Home" <%= ((typeof formData !== 'undefined' ? formData.category : product.category) === 'Home') ? 'selected' : '' %>>Home</option>
-                      <option value="Sports" <%= ((typeof formData !== 'undefined' ? formData.category : product.category) === 'Sports') ? 'selected' : '' %>>Sports</option>
-                    </select>
-                    <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'category')) { %>
-                      <div class="text-danger mt-1">
-                        <i class="fas fa-exclamation-circle me-1"></i>
-                        <%= errors.find(e => e.path === 'category').msg %>
-                      </div>
-                    <% } %>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="stock" class="form-label">
-                      <i class="fas fa-boxes me-2"></i>Số lượng tồn kho
-                    </label>
-                    <input type="number" min="0" class="form-control form-control-admin" id="stock" name="stock" 
-                           value="<%= typeof formData !== 'undefined' ? formData.stock : (product.stock || 0) %>">
-                    <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'stock')) { %>
-                      <div class="text-danger mt-1">
-                        <i class="fas fa-exclamation-circle me-1"></i>
-                        <%= errors.find(e => e.path === 'stock').msg %>
-                      </div>
-                    <% } %>
-                  </div>
-                  
-                  <div class="col-md-6 mb-3">
-                    <label for="imageUrl" class="form-label">
-                      <i class="fas fa-image me-2"></i>URL hình ảnh
-                    </label>
-                    <input type="url" class="form-control form-control-admin" id="imageUrl" name="imageUrl" 
-                           value="<%= typeof formData !== 'undefined' ? formData.imageUrl : (product.imageUrl || '') %>" 
-                           placeholder="https://example.com/image.jpg">
-                    <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'imageUrl')) { %>
-                      <div class="text-danger mt-1">
-                        <i class="fas fa-exclamation-circle me-1"></i>
-                        <%= errors.find(e => e.path === 'imageUrl').msg %>
-                      </div>
-                    <% } %>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label for="description" class="form-label">
-                    <i class="fas fa-align-left me-2"></i>Mô tả sản phẩm
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6">
+            <h3 class="text-xl font-semibold flex items-center">
+              <i class="fas fa-edit mr-2"></i>Thông tin sản phẩm
+            </h3>
+          </div>
+          
+          <div class="p-6">
+            <form action="/products/<%= product._id %>?_method=PUT" method="POST">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tên sản phẩm -->
+                <div class="md:col-span-2">
+                  <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-tag mr-2"></i>Tên sản phẩm <span class="text-red-500">*</span>
                   </label>
-                  <textarea class="form-control form-control-admin" id="description" name="description" rows="4" 
-                            placeholder="Mô tả chi tiết về sản phẩm..."><%= typeof formData !== 'undefined' ? formData.description : (product.description || '') %></textarea>
-                  <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'description')) { %>
-                    <div class="text-danger mt-1">
-                      <i class="fas fa-exclamation-circle me-1"></i>
-                      <%= errors.find(e => e.path === 'description').msg %>
-                    </div>
+                  <input type="text" id="name" name="name" 
+                         value="<%= typeof formData !== 'undefined' ? formData.name : product.name %>" 
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                         required>
+                  <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'name')) { %>
+                    <p class="text-red-500 text-sm mt-1">
+                      <i class="fas fa-exclamation-circle mr-1"></i>
+                      <%= errors.find(e => e.path === 'name').msg %>
+                    </p>
                   <% } %>
                 </div>
-
-                <div class="mb-3">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="isActive" name="isActive" 
-                           <%= (typeof formData !== 'undefined' ? formData.isActive : product.isActive) ? 'checked' : '' %>>
-                    <label class="form-check-label" for="isActive">
-                      <i class="fas fa-toggle-on me-2"></i>Sản phẩm hoạt động
-                    </label>
-                  </div>
+                
+                <!-- Giá -->
+                <div>
+                  <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-dollar-sign mr-2"></i>Giá <span class="text-red-500">*</span>
+                  </label>
+                  <input type="number" step="0.01" min="0" id="price" name="price" 
+                         value="<%= typeof formData !== 'undefined' ? formData.price : product.price %>" 
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                         required>
+                  <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'price')) { %>
+                    <p class="text-red-500 text-sm mt-1">
+                      <i class="fas fa-exclamation-circle mr-1"></i>
+                      <%= errors.find(e => e.path === 'price').msg %>
+                    </p>
+                  <% } %>
                 </div>
-
-                <div class="d-flex gap-3">
-                  <button type="submit" class="btn btn-admin-primary">
-                    <i class="fas fa-save me-2"></i>Cập nhật sản phẩm
-                  </button>
-                  <a href="/products" class="btn btn-secondary">
-                    <i class="fas fa-times me-2"></i>Hủy
-                  </a>
+                
+                <!-- Thương hiệu -->
+                <div>
+                  <label for="brand" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-building mr-2"></i>Thương hiệu
+                  </label>
+                  <input type="text" id="brand" name="brand" 
+                         value="<%= typeof formData !== 'undefined' ? formData.brand : product.brand %>" 
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                  <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'brand')) { %>
+                    <p class="text-red-500 text-sm mt-1">
+                      <i class="fas fa-exclamation-circle mr-1"></i>
+                      <%= errors.find(e => e.path === 'brand').msg %>
+                    </p>
+                  <% } %>
                 </div>
-              </form>
-            </div>
+                
+                <!-- Danh mục -->
+                <div>
+                  <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-layer-group mr-2"></i>Danh mục
+                  </label>
+                  <select id="category" name="category" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <option value="General" <%= (typeof formData !== 'undefined' ? formData.category : product.category) === 'General' ? 'selected' : '' %>>General</option>
+                    <option value="Citrus" <%= (typeof formData !== 'undefined' ? formData.category : product.category) === 'Citrus' ? 'selected' : '' %>>Citrus</option>
+                    <option value="Floral" <%= (typeof formData !== 'undefined' ? formData.category : product.category) === 'Floral' ? 'selected' : '' %>>Floral</option>
+                    <option value="Woody" <%= (typeof formData !== 'undefined' ? formData.category : product.category) === 'Woody' ? 'selected' : '' %>>Woody</option>
+                    <option value="Oriental" <%= (typeof formData !== 'undefined' ? formData.category : product.category) === 'Oriental' ? 'selected' : '' %>>Oriental</option>
+                    <option value="Fresh" <%= (typeof formData !== 'undefined' ? formData.category : product.category) === 'Fresh' ? 'selected' : '' %>>Fresh</option>
+                  </select>
+                  <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'category')) { %>
+                    <p class="text-red-500 text-sm mt-1">
+                      <i class="fas fa-exclamation-circle mr-1"></i>
+                      <%= errors.find(e => e.path === 'category').msg %>
+                    </p>
+                  <% } %>
+                </div>
+                
+                <!-- Số lượng tồn kho -->
+                <div>
+                  <label for="stock" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-boxes mr-2"></i>Số lượng tồn kho
+                  </label>
+                  <input type="number" min="0" id="stock" name="stock" 
+                         value="<%= typeof formData !== 'undefined' ? formData.stock : product.stock %>" 
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                  <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'stock')) { %>
+                    <p class="text-red-500 text-sm mt-1">
+                      <i class="fas fa-exclamation-circle mr-1"></i>
+                      <%= errors.find(e => e.path === 'stock').msg %>
+                    </p>
+                  <% } %>
+                </div>
+                
+                <!-- URL hình ảnh -->
+                <div>
+                  <label for="imageUrl" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-image mr-2"></i>URL hình ảnh
+                  </label>
+                  <input type="url" id="imageUrl" name="imageUrl" 
+                         value="<%= typeof formData !== 'undefined' ? formData.imageUrl : product.imageUrl %>" 
+                         placeholder="https://example.com/image.jpg"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                  <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'imageUrl')) { %>
+                    <p class="text-red-500 text-sm mt-1">
+                      <i class="fas fa-exclamation-circle mr-1"></i>
+                      <%= errors.find(e => e.path === 'imageUrl').msg %>
+                    </p>
+                  <% } %>
+                </div>
+              </div>
+              
+              <!-- Mô tả sản phẩm -->
+              <div class="mt-6">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-align-left mr-2"></i>Mô tả sản phẩm
+                </label>
+                <textarea id="description" name="description" rows="4" 
+                          placeholder="Mô tả chi tiết về sản phẩm..."
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"><%= typeof formData !== 'undefined' ? formData.description : product.description %></textarea>
+                <% if (typeof errors !== 'undefined' && errors.find(e => e.path === 'description')) { %>
+                  <p class="text-red-500 text-sm mt-1">
+                    <i class="fas fa-exclamation-circle mr-1"></i>
+                    <%= errors.find(e => e.path === 'description').msg %>
+                  </p>
+                <% } %>
+              </div>
+              
+              <!-- Checkbox hoạt động -->
+              <div class="mt-6">
+                <label class="flex items-center">
+                  <input type="checkbox" id="isActive" name="isActive" 
+                         <%= (typeof formData !== 'undefined' ? formData.isActive : product.isActive) ? 'checked' : '' %>
+                         class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                  <span class="ml-2 text-sm text-gray-700">
+                    <i class="fas fa-toggle-on mr-2"></i>Sản phẩm hoạt động
+                  </span>
+                </label>
+              </div>
+              
+              <!-- Buttons -->
+              <div class="flex justify-end space-x-4 mt-8">
+                <a href="/products" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center">
+                  <i class="fas fa-times mr-2"></i>Hủy
+                </a>
+                <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center">
+                  <i class="fas fa-save mr-2"></i>Cập nhật sản phẩm
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
     </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  </main>
+</body>
+</html>

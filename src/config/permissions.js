@@ -1,6 +1,6 @@
 const ROLES = Object.freeze({
   GUEST: 'guest',
-  MEMBER: 'member', 
+  USER: 'user',
   ADMIN: 'admin'
 });
 
@@ -56,7 +56,7 @@ const ROLE_PERMISSIONS = {
     PERMISSIONS.FEEDBACK.VIEW
   ],
   
-  [ROLES.MEMBER]: [
+  [ROLES.USER]: [
     PERMISSIONS.PRODUCTS.VIEW,
     PERMISSIONS.SECTIONS.VIEW,
     PERMISSIONS.COURSES.VIEW,

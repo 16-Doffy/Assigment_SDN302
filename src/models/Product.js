@@ -8,6 +8,8 @@ const ProductSchema = new Schema({
   brand: { type: String, trim: true },
   imageUrl: { type: String, trim: true },
   category: { type: String, trim: true, default: 'General' },
+  targetAudience: { type: String, trim: true, default: 'Unisex' },
+  extrait: { type: String, trim: true, default: 'EDP' },
   stock: { type: Number, default: 0, min: 0 },
   isActive: { type: Boolean, default: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'Member' }

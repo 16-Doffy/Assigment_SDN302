@@ -1,0 +1,56 @@
+<header class="bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg">
+  <nav class="container mx-auto flex items-center justify-between p-4">
+    <div class="flex items-center space-x-6">
+      <a href="<%= member && member.role === 'admin' ? '/dashboard' : '/products' %>" class="flex items-center space-x-2 text-xl font-bold">
+        <i class="fas fa-gem"></i>
+        <span><%= member && member.role === 'admin' ? 'Admin Panel' : 'Perfume Shop' %></span>
+      </a>
+      <div class="hidden md:flex items-center space-x-4">
+        <% if (member && member.role === 'admin') { %>
+          <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/dashboard">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        <% } %>
+        <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/view/sections">
+          <i class="fas fa-list"></i>
+          <span>Sections</span>
+        </a>
+        <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/products">
+          <i class="fas fa-box"></i>
+          <span>Perfumes</span>
+        </a>
+        <% if (member && member.role === 'admin') { %>
+          <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/view/users">
+            <i class="fas fa-users"></i>
+            <span>Collectors</span>
+          </a>
+        <% } %>
+      </div>
+    </div>
+    <div class="flex items-center space-x-4">
+      <% if (member && member.role !== 'admin') { %>
+        <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/profile">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+      <% } %>
+      <div class="flex items-center space-x-2">
+        <span class="text-sm">
+          Xin chào, <strong><%= member.username %></strong>
+        </span>
+        <span class="px-3 py-1 rounded-full text-xs font-semibold <%= member.role === 'admin' ? 'bg-red-500' : 'bg-blue-500' %>">
+          <%= member.role %>
+        </span>
+      </div>
+      <form action="/auth/signout" method="post" class="inline-block">
+        <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-1" type="submit">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sign out</span>
+        </button>
+      </form>
+    </div>
+  </nav>
+</header>
+
+

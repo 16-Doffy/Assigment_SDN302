@@ -6,11 +6,11 @@ const sectionSchema = new mongoose.Schema(
     sectionDescription: { type: String, required: true, trim: true },
     duration: { type: Number, required: true, min: 0 },
     isMainTask: { type: Boolean, default: false },
-    course: { type: mongoose.Schema.Types.ObjectId, ref: 'course', required: true },
+    course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model('section', sectionSchema);
+module.exports = mongoose.model('Section', sectionSchema);
 
 

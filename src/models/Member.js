@@ -7,11 +7,11 @@ const memberSchema = new Schema(
     password: { type: String, required: true },
     fullname: { type: String, trim: true, default: '' },
     birthYear: { type: Number, min: 1900, max: 2100 },
-    role: { type: String, enum: ['guest', 'member', 'admin'], default: 'member' },
+  role: { type: String, enum: ['guest', 'member', 'admin'], default: 'member' },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model('member', memberSchema);
+module.exports = mongoose.model('Member', memberSchema);
 
 

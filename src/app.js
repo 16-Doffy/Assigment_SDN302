@@ -21,8 +21,11 @@ const viewProductsRouter = require('./routes/view.products');
 const viewProfileRouter = require('./routes/view.profile');
 const viewUsersRouter = require('./routes/view.users');
 const viewDashboardRouter = require('./routes/view.dashboard');
+const apiBrandsRouter = require('./routes/api.brands');
+const apiPerfumesRouter = require('./routes/api.perfumes');
 
 const { attachUser } = require('./middleware/authView');
+const { requireRole } = require('./middleware/authorize');
 
 const app = express();
 
@@ -42,6 +45,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
 app.use(methodOverride('_method'));
+// Also support query param ?_method=DELETE for links/forms
+app.use(methodOverride(function (req) {
+  if (req.query && typeof req.query._method === 'string') {
+    return req.query._method;
+  }
+  return undefined;
+}));
 
 // <-- thêm session trước khi mount routes
 app.use(
@@ -61,21 +71,23 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 // Routes: mount routers (đảm bảo /products được mount)
 app.use('/auth', authApiRouter);        // API auth
 app.use('/api/courses', apiCoursesRouter);
+app.use('/brands', apiBrandsRouter); // admin-only CRUD
+app.use('/perfumes', apiPerfumesRouter); // admin-only CRUD
 
 app.use('/auth', viewAuthRouter);       // view signin
 app.use('/view/sections', viewSectionsRouter);
 app.use('/products', viewProductsRouter); // <-- mount products router here
+// alias /perfumes to the same router
+app.use('/perfumes', viewProductsRouter);
 app.use('/profile', viewProfileRouter);
 app.use('/view/users', viewUsersRouter);
-app.use('/dashboard', viewDashboardRouter);
+app.use('/dashboard', requireRole('admin'), viewDashboardRouter);
 
 // Root route - redirect to appropriate page
 app.get('/', (req, res) => {
-  if (req.user) {
-    res.redirect('/dashboard');
-  } else {
-    res.redirect('/auth/signin');
-  }
+  if (!req.user) return res.redirect('/auth/signin');
+  if (req.user.role === 'admin') return res.redirect('/dashboard');
+  return res.redirect('/products');
 });
 
 // debug routes (place AFTER all app.use(...) router mounts)

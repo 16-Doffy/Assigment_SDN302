@@ -1,6 +1,6 @@
 const express = require('express');
 const { ensureAuthenticated } = require('../middleware/authView');
-const { requirePermission, PERMISSIONS } = require('../middleware/authorize');
+const { requirePermission, PERMISSIONS, requireRole } = require('../middleware/authorize');
 const Member = require('../models/Member');
 const Product = require('../models/Product');
 const Section = require('../models/Section');
@@ -10,13 +10,9 @@ const Feedback = require('../models/Feedback');
 const router = express.Router();
 
 // Dashboard chính
-router.get('/', ensureAuthenticated, async (req, res) => {
+router.get('/', ensureAuthenticated, requireRole('admin'), async (req, res) => {
   try {
-    // Sử dụng req.session.member thay vì req.user
     const user = req.session.member;
-    if (!user) {
-      return res.redirect('/auth/signin');
-    }
     
     let stats = {};
 
@@ -47,19 +43,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
         .lean();
     }
 
-    // Thống kê cho member
-    if (user.role === 'member') {
-      // Cần lấy _id từ database
-      const memberDoc = await Member.findById(user.id);
-      if (memberDoc) {
-        stats.myFeedbacks = await Feedback.countDocuments({ member: memberDoc._id });
-        stats.recentFeedbacks = await Feedback.find({ member: memberDoc._id })
-          .populate('product', 'name')
-          .sort({ createdAt: -1 })
-          .limit(5)
-          .lean();
-      }
-    }
+    // Dashboard chỉ dành cho admin → bỏ phần thống kê theo member
 
     res.render('dashboard/index', { 
       user, 

@@ -1,208 +1,217 @@
-<%- include('../layouts/main') %>
-    <div class="container-fluid">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Detail - Assigment - SDN302</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="/styles.css" rel="stylesheet">
+  <meta http-equiv="Content-Security-Policy"
+  content="default-src 'self'; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' http://localhost:5000">
+</head>
+<body>
+  <% if (typeof member !== 'undefined' && member) { %>
+    <%- include('../partials/header-auth', { member }) %>
+  <% } else { %>
+    <%- include('../partials/header-public') %>
+  <% } %>
+
+  <main class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Page Header -->
+      <div class="flex justify-between items-center mb-8">
         <div>
-          <h1 class="page-title">
-            <i class="fas fa-box me-3 fa-bounce"></i><%= product.name %>
+          <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-box mr-3 text-purple-600"></i><%= product.name %>
           </h1>
-          <p class="text-muted">
-            <i class="fas fa-info-circle me-2"></i>Chi tiết sản phẩm
+          <p class="text-gray-600 mt-2 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>Chi tiết sản phẩm
           </p>
         </div>
-        <div class="d-flex gap-2">
-          <a href="/products" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Quay lại
+        <div class="flex space-x-4">
+          <a href="/products" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i>Quay lại
           </a>
           <% if (member && member.role === 'admin') { %>
-            <a href="/products/<%= product._id %>/edit" class="btn btn-warning">
-              <i class="fas fa-edit me-2"></i>Chỉnh sửa
+            <a href="/products/<%= product._id %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center">
+              <i class="fas fa-edit mr-2"></i>Chỉnh sửa
             </a>
           <% } %>
         </div>
       </div>
 
-      <div class="row">
+      <!-- Product Details -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Product Info -->
-        <div class="col-lg-8">
-          <div class="admin-card">
-            <div class="card-header">
-              <h5><i class="fas fa-info-circle me-2"></i>Thông tin sản phẩm</h5>
-            </div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-4">
-                  <% if (product.imageUrl) { %>
-                    <img src="<%= product.imageUrl %>" alt="<%= product.name %>" class="img-fluid rounded">
-                  <% } else { %>
-                    <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 300px;">
-                      <i class="fas fa-image fa-3x text-muted"></i>
-                    </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+              <i class="fas fa-info-circle mr-2"></i>Thông tin sản phẩm
+            </h3>
+            <% if (typeof averageRating !== 'undefined' && averageRating !== null) { %>
+              <div class="flex items-center space-x-2">
+                <div class="flex text-yellow-500">
+                  <% const full = Math.round(averageRating || 0); %>
+                  <% for (let i = 1; i <= 5; i++) { %>
+                    <i class="fas fa-star <%= i <= full ? '' : 'text-gray-300' %>"></i>
                   <% } %>
                 </div>
-                <div class="col-md-8">
-                  <h3 class="mb-3"><%= product.name %></h3>
-                  
-                  <div class="row mb-3">
-                    <div class="col-sm-6">
-                      <strong><i class="fas fa-dollar-sign me-2"></i>Giá:</strong>
-                      <span class="h4 text-success ms-2">$<%= product.price.toFixed(2) %></span>
-                    </div>
-                    <div class="col-sm-6">
-                      <strong><i class="fas fa-building me-2"></i>Thương hiệu:</strong>
-                      <span class="ms-2"><%= product.brand || 'Không có' %></span>
-                    </div>
-                  </div>
-
-                  <div class="row mb-3">
-                    <div class="col-sm-6">
-                      <strong><i class="fas fa-layer-group me-2"></i>Danh mục:</strong>
-                      <span class="badge bg-info ms-2"><%= product.category || 'General' %></span>
-                    </div>
-                    <div class="col-sm-6">
-                      <strong><i class="fas fa-boxes me-2"></i>Tồn kho:</strong>
-                      <span class="badge <%= product.stock > 0 ? 'bg-success' : 'bg-danger' %> ms-2">
-                        <%= product.stock %>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <strong><i class="fas fa-toggle-on me-2"></i>Trạng thái:</strong>
-                    <span class="badge <%= product.isActive ? 'bg-success' : 'bg-secondary' %> ms-2">
-                      <%= product.isActive ? 'Hoạt động' : 'Tạm dừng' %>
-                    </span>
-                  </div>
-
-                  <% if (product.description) { %>
-                    <div class="mb-3">
-                      <strong><i class="fas fa-align-left me-2"></i>Mô tả:</strong>
-                      <p class="mt-2"><%= product.description %></p>
-                    </div>
-                  <% } %>
-
-                  <div class="mb-3">
-                    <strong><i class="fas fa-calendar me-2"></i>Ngày tạo:</strong>
-                    <span class="ms-2"><%= new Date(product.createdAt).toLocaleDateString('vi-VN') %></span>
-                  </div>
-                </div>
+                <span class="text-sm text-gray-600">(<%= ratingCount || 0 %> đánh giá, TB: <%= (averageRating || 0).toFixed(1) %>)</span>
+              </div>
+            <% } %>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm font-medium text-gray-600">Tên sản phẩm</label>
+                <p class="text-lg font-semibold text-gray-800"><%= product.name %></p>
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-600">Giá</label>
+                <p class="text-lg font-semibold text-green-600">$<%= product.price.toFixed(2) %></p>
               </div>
             </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm font-medium text-gray-600">Thương hiệu</label>
+                <p class="text-lg font-semibold text-gray-800"><%= product.brand || 'Chưa có' %></p>
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-600">Danh mục</label>
+                <p class="text-lg font-semibold text-gray-800"><%= product.category || 'General' %></p>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm font-medium text-gray-600">Số lượng tồn kho</label>
+                <p class="text-lg font-semibold text-gray-800"><%= product.stock || 0 %></p>
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-600">Trạng thái</label>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold <%= product.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                  <%= product.isActive ? 'Hoạt động' : 'Tạm dừng' %>
+                </span>
+              </div>
+</div>
+
+            <% if (typeof averageRating !== 'undefined' && averageRating !== null) { %>
+              <div class="mt-2">
+                <label class="text-sm font-medium text-gray-600">Đánh giá trung bình</label>
+                <div class="flex items-center space-x-2 mt-1">
+                  <div class="flex text-yellow-500">
+                    <% const full2 = Math.round(averageRating || 0); %>
+                    <% for (let i = 1; i <= 5; i++) { %>
+                      <i class="fas fa-star <%= i <= full2 ? '' : 'text-gray-300' %>"></i>
+                    <% } %>
+                  </div>
+                  <span class="text-sm text-gray-700"><%= (averageRating || 0).toFixed(1) %>/5 từ <%= ratingCount %> đánh giá</span>
+                </div>
+              </div>
+            <% } %>
+
+            <% if (product.description) { %>
+              <div>
+                <label class="text-sm font-medium text-gray-600">Mô tả</label>
+                <p class="text-gray-800 mt-1"><%= product.description %></p>
+              </div>
+<% } %>
+
+            <% if (product.imageUrl) { %>
+              <div>
+                <label class="text-sm font-medium text-gray-600">Hình ảnh</label>
+                <div class="mt-2">
+                  <img src="<%= product.imageUrl %>" alt="<%= product.name %>" class="h-48 w-48 object-cover rounded-lg">
+                </div>
+              </div>
+        <% } %>
           </div>
         </div>
 
         <!-- Feedback Section -->
-        <div class="col-lg-4">
-          <div class="admin-card">
-            <div class="card-header">
-              <h5><i class="fas fa-comments me-2"></i>Đánh giá</h5>
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-comments mr-2"></i>Đánh giá sản phẩm
+          </h3>
+          
+          <!-- Add Feedback Form: only for user; admin sees nothing, guest sees login note -->
+          <% if (!member) { %>
+            <div class="bg-gray-50 border-l-4 border-gray-400 p-4 mb-6">
+              <p class="text-gray-700">
+                <i class="fas fa-info-circle mr-2"></i>Vui lòng đăng nhập để đánh giá sản phẩm.
+              </p>
             </div>
-            <div class="card-body">
-              <% if (member && (member.role === 'member' || member.role === 'admin')) { %>
-                <% if (myFeedback) { %>
-                  <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Bạn đã đánh giá sản phẩm này
-                  </div>
-                  <div class="border p-3 rounded mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <strong>Đánh giá của bạn:</strong>
-                      <div>
-                        <% for (let i = 1; i <= 5; i++) { %>
-                          <i class="fas fa-star <%= i <= myFeedback.rating ? 'text-warning' : 'text-muted' %>"></i>
-                        <% } %>
-                      </div>
-                    </div>
-                    <p class="mb-0"><%= myFeedback.comment %></p>
-                    <small class="text-muted">
-                      <i class="fas fa-clock me-1"></i>
-                      <%= new Date(myFeedback.updatedAt).toLocaleDateString('vi-VN') %>
-                    </small>
-                  </div>
-                <% } else { %>
-                  <h6 class="mb-3">Viết đánh giá:</h6>
-                  <form action="/products/<%= product._id %>/feedback" method="POST">
-                    <div class="mb-3">
-                      <label class="form-label">Đánh giá:</label>
-                      <div class="rating mb-2">
-                        <% for (let i = 1; i <= 5; i++) { %>
-                          <input type="radio" name="rating" value="<%= i %>" id="star<%= i %>" <%= i === 5 ? 'checked' : '' %>>
-                          <label for="star<%= i %>" class="star">★</label>
-                        <% } %>
-                      </div>
-                    </div>
-                    <div class="mb-3">
-                      <textarea class="form-control form-control-admin" name="comment" rows="3" 
-                                placeholder="Nhận xét về sản phẩm..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-admin-primary w-100">
-                      <i class="fas fa-paper-plane me-2"></i>Gửi đánh giá
-                    </button>
-                  </form>
-                <% } %>
-              <% } else { %>
-                <div class="alert alert-warning">
-                  <i class="fas fa-exclamation-triangle me-2"></i>
-                  Bạn cần đăng nhập với tài khoản member để đánh giá sản phẩm
-                </div>
-              <% } %>
-            </div>
-          </div>
-
-          <!-- Recent Feedbacks -->
-          <div class="admin-card mt-4">
-            <div class="card-header">
-              <h5><i class="fas fa-list me-2"></i>Đánh giá gần đây</h5>
-            </div>
-            <div class="card-body">
-              <% if (feedbacks && feedbacks.length > 0) { %>
-                <% feedbacks.slice(0, 5).forEach(feedback => { %>
-                  <div class="border-bottom pb-3 mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <strong><%= feedback.member.username %></strong>
-                      <div>
-                        <% for (let i = 1; i <= 5; i++) { %>
-                          <i class="fas fa-star <%= i <= feedback.rating ? 'text-warning' : 'text-muted' %>"></i>
-                        <% } %>
-                      </div>
-                    </div>
-                    <p class="mb-2"><%= feedback.comment %></p>
-                    <small class="text-muted">
-                      <i class="fas fa-clock me-1"></i>
-                      <%= new Date(feedback.createdAt).toLocaleDateString('vi-VN') %>
-                    </small>
-                  </div>
-                <% }) %>
-              <% } else { %>
-                <p class="text-muted text-center">
-                  <i class="fas fa-comment-slash fa-2x mb-2"></i><br>
-                  Chưa có đánh giá nào
+          <% } else if (member.role === 'user') { %>
+            <% if (!myFeedback) { %>
+              <form action="/products/<%= product._id %>/feedback" method="POST" class="mb-6">
+                <div class="mb-4">
+                  <label for="rating" class="block text-sm font-medium text-gray-700 mb-2">Đánh giá</label>
+                  <select name="rating" id="rating" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                    <option value="">Chọn đánh giá</option>
+                    <option value="1">1 sao - Rất tệ</option>
+                    <option value="2">2 sao - Tệ</option>
+                    <option value="3">3 sao - Bình thường</option>
+                    <option value="4">4 sao - Tốt</option>
+                    <option value="5">5 sao - Rất tốt</option>
+      </select>
+    </div>
+                <div class="mb-4">
+                  <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Bình luận</label>
+                  <textarea name="comment" id="comment" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Viết đánh giá của bạn..." required></textarea>
+    </div>
+                <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                  <i class="fas fa-paper-plane mr-2"></i>Gửi đánh giá
+                </button>
+  </form>
+<% } else { %>
+              <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                <p class="text-blue-700">
+                  <i class="fas fa-info-circle mr-2"></i>Bạn đã đánh giá sản phẩm này rồi.
                 </p>
-              <% } %>
-            </div>
+              </div>
+            <% } %>
+          <% } %>
+
+          <!-- Feedback List -->
+          <div class="space-y-4">
+            <% if (feedbacks && feedbacks.length > 0) { %>
+              <% feedbacks.forEach(feedback => { %>
+                <div class="border-l-4 border-purple-400 bg-gray-50 p-4 rounded-r-lg">
+                  <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center space-x-2">
+                      <span class="font-semibold text-gray-800"><%= feedback.member.username %></span>
+                      <div class="flex text-yellow-500">
+                        <% for (let i = 1; i <= 5; i++) { %>
+                          <i class="fas fa-star <%= i <= feedback.rating ? '' : 'text-gray-300' %>"></i>
+                        <% } %>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                      <span class="text-sm text-gray-500"><%= new Date(feedback.createdAt).toLocaleDateString('vi-VN') %></span>
+                      <% if (member && member.role === 'admin') { %>
+                        <form method="POST" action="/products/<%= product._id %>/feedback/<%= feedback._id %>" onsubmit="return confirm('Xóa đánh giá này?');">
+                          <input type="hidden" name="_method" value="DELETE" />
+                          <button class="text-red-600 hover:text-red-800" title="Xóa đánh giá"><i class="fas fa-trash"></i></button>
+                        </form>
+                      <% } %>
+                    </div>
+                  </div>
+                  <p class="text-gray-700"><%= feedback.comment %></p>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="text-center py-8">
+                <i class="fas fa-comment-slash text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-500">Chưa có đánh giá nào</p>
+              </div>
+            <% } %>
           </div>
         </div>
       </div>
     </div>
-  <style>
-    .rating {
-      display: flex;
-      flex-direction: row-reverse;
-      justify-content: flex-end;
-    }
-    .rating input {
-      display: none;
-    }
-    .rating label {
-      font-size: 1.5rem;
-      color: #ddd;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-    .rating label:hover,
-    .rating label:hover ~ label,
-    .rating input:checked ~ label {
-      color: #ffc107;
-    }
-  </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  </main>
+</body>
+</html>

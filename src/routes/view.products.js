@@ -3,18 +3,31 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const Feedback = require('../models/Feedback');
+const Member = require('../models/Member');
 const { ensureAuthenticated } = require('../middleware/authView');
 const { requireRole, requirePermission, ROLES, PERMISSIONS } = require('../middleware/authorize');
 const { body, validationResult } = require('express-validator');
 
 console.log('[DEBUG] loaded view.products router');
 
-// list - cần authentication
-router.get('/', ensureAuthenticated, async (req, res, next) => {
+// list - public with search and brand filter
+router.get('/', async (req, res, next) => {
   try {
-    const products = await Product.find().populate('createdBy', 'username').lean();
+    const { q, brand } = req.query;
+    const filter = {};
+    const hasName = q && String(q).trim().length > 0;
+    const hasBrand = brand && String(brand).trim().length > 0;
+    if (hasName) {
+      filter.name = { $regex: String(q).trim(), $options: 'i' };
+    }
+    if (!hasName && hasBrand) {
+      // Only apply brand filter if user didn't type a name
+      filter.brand = { $regex: String(brand).trim(), $options: 'i' };
+    }
+    const products = await Product.find(filter).populate('createdBy', 'username').lean();
+    const allBrands = await Product.distinct('brand');
     console.log('[DEBUG] products list ids =', products.map(p => String(p._id)).slice(0,50));
-    res.render('products/index', { products, member: req.session.member });
+    res.render('products/index', { products, member: req.session?.member, q: q || '', selectedBrand: brand || '', brands: allBrands.filter(Boolean).sort() });
   } catch (err) {
     next(err);
   }
@@ -34,7 +47,7 @@ router.post('/new',
     body('price').isFloat({ min: 0 }).withMessage('Giá phải là số dương'),
     body('description').optional().trim().isLength({ max: 500 }).withMessage('Mô tả không quá 500 ký tự'),
     body('brand').optional().trim().isLength({ max: 50 }).withMessage('Thương hiệu không quá 50 ký tự'),
-    body('imageUrl').optional().isURL().withMessage('URL hình ảnh không hợp lệ'),
+    body('imageUrl').optional({ checkFalsy: true }).isURL({ require_protocol: true }).withMessage('URL hình ảnh phải là https://...'),
     body('category').optional().trim().isLength({ max: 50 }).withMessage('Danh mục không quá 50 ký tự'),
     body('stock').optional().isInt({ min: 0 }).withMessage('Số lượng tồn kho phải là số nguyên dương')
   ],
@@ -52,26 +65,25 @@ router.post('/new',
       const { name, price, description, brand, imageUrl, category, stock } = req.body;
       const product = new Product({
         name: name.trim(),
-        price: parseFloat(price),
+        price: Number.isFinite(parseFloat(price)) ? parseFloat(price) : 0,
         description: description ? description.trim() : '',
         brand: brand ? brand.trim() : '',
         imageUrl: imageUrl ? imageUrl.trim() : '',
         category: category ? category.trim() : 'General',
-        stock: parseInt(stock) || 0,
+        stock: Number.isFinite(parseInt(stock)) ? parseInt(stock) : 0,
         createdBy: req.user ? req.user._id : undefined
       });
       
       await product.save();
-      req.flash('success', 'Sản phẩm đã được tạo thành công!');
-      res.redirect('/products');
+      return res.redirect('/products');
     } catch (err) {
       next(err);
     }
   }
 );
 
-// detail (with robust debug + ObjectId check) - cần authentication
-router.get('/:id', ensureAuthenticated, async (req, res, next) => {
+// detail - public
+router.get('/:id', async (req, res, next) => {
   try {
     const id = req.params.id;
     console.log('[DEBUG] GET /products/:id param =', id);
@@ -93,10 +105,20 @@ router.get('/:id', ensureAuthenticated, async (req, res, next) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    let myFeedback = null;
-    if (req.user) myFeedback = await Feedback.findOne({ product: id, member: req.user._id }).lean();
+    const ratingCount = feedbacks.length;
+    const averageRating = ratingCount
+      ? (feedbacks.reduce((sum, f) => sum + (Number(f.rating) || 0), 0) / ratingCount)
+      : null;
 
-    res.render('products/detail', { product, feedbacks, myFeedback, user: req.user, member: req.session.member });
+    let myFeedback = null;
+    if (req.session.member && req.session.member.id) {
+      const memberDoc = await Member.findById(req.session.member.id);
+      if (memberDoc) {
+        myFeedback = await Feedback.findOne({ product: id, member: memberDoc._id }).lean();
+      }
+    }
+
+    res.render('products/detail', { product, feedbacks, ratingCount, averageRating, myFeedback, user: req.session.member, member: req.session.member });
   } catch (err) {
     console.error('[ERROR] GET /products/:id', err);
     next(err);
@@ -166,8 +188,7 @@ router.put('/:id',
       };
 
       await Product.findByIdAndUpdate(id, updateData);
-      req.flash('success', 'Sản phẩm đã được cập nhật thành công!');
-      res.redirect('/products');
+      return res.redirect('/products');
     } catch (err) {
       next(err);
     }
@@ -203,6 +224,9 @@ router.delete('/:id', ensureAuthenticated, requirePermission(PERMISSIONS.PRODUCT
 router.post('/:id/feedback', ensureAuthenticated, requirePermission(PERMISSIONS.FEEDBACK.CREATE), async (req, res, next) => {
   try {
     const productId = req.params.id;
+    if (!req.user || req.user.role !== 'user') {
+      return res.redirect(`/products/${productId}`);
+    }
     const memberId = req.user._id;
     const { comment, rating } = req.body;
     if (!comment || String(comment).trim().length === 0) return res.redirect(`/products/${productId}`);
@@ -215,6 +239,17 @@ router.post('/:id/feedback', ensureAuthenticated, requirePermission(PERMISSIONS.
     res.redirect(`/products/${productId}`);
   } catch (err) {
     if (err.code === 11000) return res.redirect(`/products/${req.params.id}`);
+    next(err);
+  }
+});
+
+// Admin delete a feedback
+router.delete('/:productId/feedback/:feedbackId', ensureAuthenticated, requireRole('admin'), async (req, res, next) => {
+  try {
+    const { productId, feedbackId } = req.params;
+    await Feedback.findByIdAndDelete(feedbackId);
+    return res.redirect(`/products/${productId}`);
+  } catch (err) {
     next(err);
   }
 });
