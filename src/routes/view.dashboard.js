@@ -3,8 +3,6 @@ const { ensureAuthenticated } = require('../middleware/authView');
 const { requirePermission, PERMISSIONS, requireRole } = require('../middleware/authorize');
 const Member = require('../models/Member');
 const Product = require('../models/Product');
-const Section = require('../models/Section');
-const Course = require('../models/Course');
 const Feedback = require('../models/Feedback');
 
 const router = express.Router();
@@ -18,8 +16,7 @@ router.get('/', ensureAuthenticated, requireRole('admin'), async (req, res) => {
 
     // Thống kê cơ bản cho tất cả users
     stats.totalProducts = await Product.countDocuments();
-    stats.totalSections = await Section.countDocuments();
-    stats.totalCourses = await Course.countDocuments();
+    // Sections/Courses removed from project
     stats.totalFeedbacks = await Feedback.countDocuments();
 
     // Thống kê chi tiết cho admin

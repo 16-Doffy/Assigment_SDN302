@@ -37,8 +37,14 @@ router.post('/signin', async (req, res) => {
   const { username, password } = req.body;
   const member = await Member.findOne({ username });
   if (!member) return res.render('auth/signin', { error: 'Invalid credentials', username });
+  if (member.role === 'guest') {
+    return res.render('auth/signin', { error: 'Guest accounts cannot sign in. Please register or contact admin.', username });
+  }
   const ok = await bcrypt.compare(password, member.password);
   if (!ok) return res.render('auth/signin', { error: 'Invalid credentials', username });
+
+  // Block guest accounts from logging in per assignment rules
+  // already handled above
 
   // Normalize legacy role 'member' -> 'user'
   if (member.role === 'member') {

@@ -13,10 +13,8 @@ const mongoose = require('mongoose');
 const Product = require('./models/Product');
 
 // Routers
-const apiCoursesRouter = require('./routes/api.courses');
 const authApiRouter = require('./routes/api.auth');
 const viewAuthRouter = require('./routes/view.auth');
-const viewSectionsRouter = require('./routes/view.sections');
 const viewProductsRouter = require('./routes/view.products');
 const viewProfileRouter = require('./routes/view.profile');
 const viewUsersRouter = require('./routes/view.users');
@@ -70,12 +68,10 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Routes: mount routers (đảm bảo /products được mount)
 app.use('/auth', authApiRouter);        // API auth
-app.use('/api/courses', apiCoursesRouter);
 app.use('/brands', apiBrandsRouter); // admin-only CRUD
 app.use('/perfumes', apiPerfumesRouter); // admin-only CRUD
 
 app.use('/auth', viewAuthRouter);       // view signin
-app.use('/view/sections', viewSectionsRouter);
 app.use('/products', viewProductsRouter); // <-- mount products router here
 // alias /perfumes to the same router
 app.use('/perfumes', viewProductsRouter);

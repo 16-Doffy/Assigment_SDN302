@@ -7,8 +7,8 @@ const { ROLES, PERMISSIONS, hasPermission, hasAnyPermission, hasAllPermissions }
 function requireRole(...roles) {
   if (roles.length === 1 && Array.isArray(roles[0])) roles = roles[0];
   return (req, res, next) => {
-    // Kiểm tra cả req.user và req.session.member
-    const user = req.user || req.session?.member;
+    // Ưu tiên role trong session (đã chuẩn hóa sau đăng nhập)
+    const user = req.session?.member || req.user;
     if (!user) {
       if (req.accepts('html')) return res.redirect('/auth/signin');
       return res.status(403).json({ message: 'Forbidden' });
@@ -27,8 +27,8 @@ function requireRole(...roles) {
  */
 function requirePermission(permission) {
   return (req, res, next) => {
-    // Kiểm tra cả req.user và req.session.member
-    const user = req.user || req.session?.member;
+    // Ưu tiên role trong session (đã chuẩn hóa sau đăng nhập)
+    const user = req.session?.member || req.user;
     if (!user) {
       if (req.accepts('html')) return res.redirect('/auth/signin');
       return res.status(403).json({ message: 'Forbidden' });

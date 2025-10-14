@@ -49,7 +49,9 @@ router.post('/new',
     body('brand').optional().trim().isLength({ max: 50 }).withMessage('Thương hiệu không quá 50 ký tự'),
     body('imageUrl').optional({ checkFalsy: true }).isURL({ require_protocol: true }).withMessage('URL hình ảnh phải là https://...'),
     body('category').optional().trim().isLength({ max: 50 }).withMessage('Danh mục không quá 50 ký tự'),
-    body('stock').optional().isInt({ min: 0 }).withMessage('Số lượng tồn kho phải là số nguyên dương')
+    body('stock').optional().isInt({ min: 0 }).withMessage('Số lượng tồn kho phải là số nguyên dương'),
+    body('targetAudience').optional().trim().isLength({ max: 20 }).withMessage('Đối tượng tối đa 20 ký tự'),
+    body('extrait').optional().trim().isLength({ max: 20 }).withMessage('Extrait tối đa 20 ký tự')
   ],
   async (req, res, next) => {
     try {
@@ -62,7 +64,7 @@ router.post('/new',
         });
       }
 
-      const { name, price, description, brand, imageUrl, category, stock } = req.body;
+      const { name, price, description, brand, imageUrl, category, stock, targetAudience, extrait } = req.body;
       const product = new Product({
         name: name.trim(),
         price: Number.isFinite(parseFloat(price)) ? parseFloat(price) : 0,
@@ -71,6 +73,8 @@ router.post('/new',
         imageUrl: imageUrl ? imageUrl.trim() : '',
         category: category ? category.trim() : 'General',
         stock: Number.isFinite(parseInt(stock)) ? parseInt(stock) : 0,
+        targetAudience: targetAudience ? targetAudience.trim() : undefined,
+        extrait: extrait ? extrait.trim() : undefined,
         createdBy: req.user ? req.user._id : undefined
       });
       

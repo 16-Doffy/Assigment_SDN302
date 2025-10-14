@@ -4,25 +4,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign in</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/styles.css">
-  <style>form{max-width:420px;margin:40px auto;padding:20px;border:1px solid #ccc;border-radius:8px}</style>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self'">
   </head>
-<body>
-  <h1 style="text-align:center">Sign in</h1>
-  <% if (error) { %>
-    <p style="color:red;text-align:center"><%= error %></p>
-  <% } %>
-  <form action="/auth/signin" method="post">
-    <div>
-      <label>Username</label>
-      <input type="text" name="username" value="<%= username %>" required />
+<body class="min-h-screen bg-gray-50">
+  <%- include('../partials/header-public') %>
+
+  <div class="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-10">
+    <div class="grid md:grid-cols-2 gap-8 items-center">
+      <!-- Left: Banner -->
+      <div class="order-1 md:order-1">
+        <%- include('../partials/banner', { imageUrl: '/img/nduy6.png', altText: 'Perfume campaign', ctaText: 'Khám phá ngay', ctaHref: '/products' }) %>
+      </div>
+
+      <!-- Right: Sign-in Card -->
+      <div class="order-2 md:order-2 bg-white shadow-md rounded-2xl p-6 md:p-8 border border-gray-100">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 text-center">Sign in</h1>
+        <% if (error) { %>
+          <div class="mt-4 rounded-md bg-red-50 p-3 text-red-700 text-sm"><%= error %></div>
+        <% } %>
+
+        <form class="mt-6 space-y-5" action="/auth/signin" method="post">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <input class="w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" type="text" name="username" value="<%= username %>" required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input class="w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" type="password" name="password" required />
+          </div>
+          <button type="submit" class="w-full inline-flex justify-center items-center rounded-xl bg-indigo-600 text-white font-semibold py-3 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">Login</button>
+        </form>
+
+        <div class="mt-6 flex items-center justify-between text-sm">
+          <a class="text-indigo-600 hover:underline" href="/auth/register">Create a new account</a>
+          <a class="text-gray-600 hover:underline" href="/products">Continue as guest</a>
+        </div>
+      </div>
     </div>
-    <div>
-      <label>Password</label>
-      <input type="password" name="password" required />
-    </div>
-    <button type="submit">Login</button>
-  </form>
+  </div>
 </body>
 </html>
 

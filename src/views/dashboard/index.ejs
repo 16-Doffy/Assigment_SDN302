@@ -24,10 +24,7 @@
               <i class="fas fa-home"></i>
               <span>Dashboard</span>
             </a>
-            <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/view/sections">
-              <i class="fas fa-list"></i>
-              <span>Sections</span>
-            </a>
+            
             <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/products">
               <i class="fas fa-box"></i>
               <span>Products</span>
@@ -91,8 +88,8 @@
         </div>
       </div>
 
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Stats Cards: only Products and Feedbacks -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
         <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white shadow-lg">
           <div class="flex items-center justify-between">
             <div>
@@ -100,26 +97,6 @@
               <p class="text-purple-100">Sản phẩm</p>
             </div>
             <i class="fas fa-box text-4xl opacity-75"></i>
-          </div>
-        </div>
-        
-        <div class="bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg p-6 text-white shadow-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-3xl font-bold"><%= stats.totalSections %></h3>
-              <p class="text-teal-100">Sections</p>
-            </div>
-            <i class="fas fa-list text-4xl opacity-75"></i>
-          </div>
-        </div>
-        
-        <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-6 text-white shadow-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-3xl font-bold"><%= stats.totalCourses %></h3>
-              <p class="text-red-100">Khóa học</p>
-            </div>
-            <i class="fas fa-graduation-cap text-4xl opacity-75"></i>
           </div>
         </div>
         

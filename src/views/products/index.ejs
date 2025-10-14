@@ -19,6 +19,25 @@
 
   <main class="min-h-screen bg-gray-50">
     <div class="container mx-auto px-4 py-8">
+  <%- include('../partials/banner', {
+    imageUrl: '/img/nduy6.png',
+    altText: 'Perfume campaign',
+    subtitle: 'Bộ sưu tập mùi hương mới nhất',
+    titles: [
+      'Nước hoa - Vẻ đẹp không lời.',
+      'Đẳng cấp từng giọt hương.',
+      'Hương thơm, sức mạnh vô hình.',
+      'Phụ kiện cuối cùng, không thể quên.',
+      'Chạm đến trái tim.',
+      'Tự tin chinh phục mọi thử thách cùng Perfume Shop.',
+      'Bắt đầu ngày mới tràn đầy năng lượng với Perfume Shop.',
+      'Bí quyết giúp bạn tự tin tỏa sáng.',
+      'Perfume Shop - Tuyệt phẩm giữ mùi hương.'
+    ],
+   
+    ctaHref: '/products'
+  }) %>
+  
   <!-- Page Header -->
   <div class="flex justify-between items-center mb-8">
     <div>
