@@ -62,7 +62,6 @@ router.put(
   [
     param('id').isMongoId(),
     body('username').trim().notEmpty().withMessage('Username là bắt buộc'),
-    body('password').optional({ checkFalsy: true }).isLength({ min: 6 }).withMessage('Mật khẩu tối thiểu 6 ký tự'),
     body('fullname').optional({ checkFalsy: true }).trim().isLength({ max: 100 }).withMessage('Họ tên tối đa 100 ký tự'),
     body('birthYear').optional({ checkFalsy: true }).isInt({ min: 1900, max: 2100 }).withMessage('Năm sinh không hợp lệ'),
     body('role').isIn(['guest', 'user', 'admin']).withMessage('Role không hợp lệ')
@@ -88,10 +87,7 @@ router.put(
         role: req.body.role
       };
       if (req.body.birthYear) update.birthYear = parseInt(req.body.birthYear, 10);
-      if (req.body.password) {
-        const salt = await bcrypt.genSalt(10);
-        update.password = await bcrypt.hash(req.body.password, salt);
-      }
+      // Theo yêu cầu: Admin không được phép thay đổi mật khẩu của người dùng
       // Không cho admin tự đổi role hoặc xóa chính mình trong route này (an toàn)
       const isSelf = req.session?.member?.id === req.params.id;
       if (isSelf && req.body.role !== req.session.member.role) {
