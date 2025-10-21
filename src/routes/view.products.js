@@ -122,7 +122,9 @@ router.get('/:id', async (req, res, next) => {
       }
     }
 
-    res.render('products/detail', { product, feedbacks, ratingCount, averageRating, myFeedback, user: req.session.member, member: req.session.member });
+    const success = req.session.success;
+    if (success) delete req.session.success; // Clear the message after showing
+    res.render('products/detail', { product, feedbacks, ratingCount, averageRating, myFeedback, user: req.session.member, member: req.session.member, success });
   } catch (err) {
     console.error('[ERROR] GET /products/:id', err);
     next(err);
@@ -142,7 +144,9 @@ router.get('/:id/edit', ensureAuthenticated, requirePermission(PERMISSIONS.PRODU
       return res.status(404).render('errors/404');
     }
 
-    res.render('products/edit', { product, member: req.session.member });
+    const success = req.session.success;
+    if (success) delete req.session.success; // Clear the message after showing
+    res.render('products/edit', { product, member: req.session.member, success });
   } catch (err) {
     next(err);
   }
@@ -157,12 +161,15 @@ router.put('/:id',
     body('price').isFloat({ min: 0 }).withMessage('Giá phải là số dương'),
     body('description').optional().trim().isLength({ max: 500 }).withMessage('Mô tả không quá 500 ký tự'),
     body('brand').optional().trim().isLength({ max: 50 }).withMessage('Thương hiệu không quá 50 ký tự'),
-    body('imageUrl').optional().isURL().withMessage('URL hình ảnh không hợp lệ'),
+    body('imageUrl').optional({ checkFalsy: true }).isURL().withMessage('URL hình ảnh không hợp lệ'),
     body('category').optional().trim().isLength({ max: 50 }).withMessage('Danh mục không quá 50 ký tự'),
-    body('stock').optional().isInt({ min: 0 }).withMessage('Số lượng tồn kho phải là số nguyên dương')
+    body('stock').optional().isInt({ min: 0 }).withMessage('Số lượng tồn kho phải là số nguyên dương'),
+    body('targetAudience').optional().trim().isLength({ max: 20 }).withMessage('Đối tượng tối đa 20 ký tự'),
+    body('extrait').optional().trim().isLength({ max: 20 }).withMessage('Extrait tối đa 20 ký tự')
   ],
   async (req, res, next) => {
     try {
+      console.log('[DEBUG] PUT request body:', req.body);
       const id = req.params.id;
       if (!mongoose.isValidObjectId(id)) {
         return res.status(404).render('errors/404');
@@ -170,6 +177,7 @@ router.put('/:id',
 
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        console.log('[DEBUG] Validation errors:', errors.array());
         const product = await Product.findById(id).lean();
         return res.render('products/edit', { 
           product,
@@ -179,7 +187,10 @@ router.put('/:id',
         });
       }
 
-      const { name, price, description, brand, imageUrl, category, stock, isActive } = req.body;
+      const { name, price, description, brand, imageUrl, category, stock, isActive, targetAudience, extrait } = req.body;
+      console.log('[DEBUG] Update data received:', { targetAudience, extrait, isActive });
+      console.log('[DEBUG] All form fields:', Object.keys(req.body));
+      
       const updateData = {
         name: name.trim(),
         price: parseFloat(price),
@@ -188,11 +199,18 @@ router.put('/:id',
         imageUrl: imageUrl ? imageUrl.trim() : '',
         category: category ? category.trim() : 'General',
         stock: parseInt(stock) || 0,
-        isActive: isActive === 'on'
+        isActive: isActive === 'on',
+        targetAudience: targetAudience ? targetAudience.trim() : 'Unisex',
+        extrait: extrait ? extrait.trim() : 'EDP'
       };
-
-      await Product.findByIdAndUpdate(id, updateData);
-      return res.redirect('/products');
+      
+      console.log('[DEBUG] Update data to save:', updateData);
+      const result = await Product.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+      console.log('[DEBUG] Update result:', result);
+      
+      // Add success message to session
+      req.session.success = 'Sản phẩm đã được cập nhật thành công!';
+      return res.redirect(`/products/${id}`);
     } catch (err) {
       next(err);
     }
@@ -228,16 +246,17 @@ router.delete('/:id', ensureAuthenticated, requirePermission(PERMISSIONS.PRODUCT
 router.post('/:id/feedback', ensureAuthenticated, requirePermission(PERMISSIONS.FEEDBACK.CREATE), async (req, res, next) => {
   try {
     const productId = req.params.id;
-    if (!req.user || req.user.role !== 'user') {
+    const sessionUser = req.session?.member;
+    if (!sessionUser || sessionUser.role !== 'user') {
       return res.redirect(`/products/${productId}`);
     }
-    const memberId = req.user._id;
+    const memberId = sessionUser.id;
     const { comment, rating } = req.body;
     if (!comment || String(comment).trim().length === 0) return res.redirect(`/products/${productId}`);
 
     await require('../models/Feedback').findOneAndUpdate(
       { product: productId, member: memberId },
-      { comment: String(comment).trim(), rating: rating ? Number(rating) : 5, updatedAt: new Date() },
+      { comment: String(comment).trim(), rating: rating ? Math.max(1, Math.min(3, Number(rating))) : 3, updatedAt: new Date() },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
     res.redirect(`/products/${productId}`);
@@ -247,10 +266,22 @@ router.post('/:id/feedback', ensureAuthenticated, requirePermission(PERMISSIONS.
   }
 });
 
-// Admin delete a feedback
-router.delete('/:productId/feedback/:feedbackId', ensureAuthenticated, requireRole('admin'), async (req, res, next) => {
+// User deletes own feedback
+router.delete('/:productId/feedback/:feedbackId', ensureAuthenticated, async (req, res, next) => {
   try {
     const { productId, feedbackId } = req.params;
+    const sessionUser = req.session?.member;
+    if (!sessionUser) return res.redirect(`/products/${productId}`);
+
+    const feedback = await Feedback.findById(feedbackId);
+    if (!feedback) return res.redirect(`/products/${productId}`);
+
+    const isOwner = String(feedback.member) === String(sessionUser.id);
+    const isAdmin = sessionUser.role === 'admin';
+    if (!isOwner && !isAdmin) {
+      return res.status(403).render('errors/403');
+    }
+
     await Feedback.findByIdAndDelete(feedbackId);
     return res.redirect(`/products/${productId}`);
   } catch (err) {

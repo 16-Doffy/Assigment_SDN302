@@ -1,24 +1,24 @@
 <header class="bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg">
   <nav class="container mx-auto flex items-center justify-between p-4">
     <div class="flex items-center space-x-6">
-      <a href="<%= member && member.role === 'admin' ? '/dashboard' : '/products' %>" class="flex items-center space-x-2 text-xl font-bold">
+      <a href="<%= member && member.role === 'admin' ? '/dashboard' : '/products' %>" class="flex items-center space-x-2 text-xl font-bold tracking-tight">
         <i class="fas fa-gem"></i>
         <span><%= member && member.role === 'admin' ? 'Admin Panel' : 'Perfume Shop' %></span>
       </a>
       <div class="hidden md:flex items-center space-x-4">
         <% if (member && member.role === 'admin') { %>
-          <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/dashboard">
+          <a class="transition-colors duration-200 flex items-center space-x-1 px-3 py-1 rounded-md hover:bg-white/10" href="/dashboard">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
           </a>
         <% } %>
         
-        <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/products">
+        <a class="transition-colors duration-200 flex items-center space-x-1 px-3 py-1 rounded-md hover:bg-white/10" href="/products">
           <i class="fas fa-box"></i>
           <span>Perfumes</span>
         </a>
         <% if (member && member.role === 'admin') { %>
-          <a class="hover:text-purple-200 transition-colors duration-200 flex items-center space-x-1" href="/view/users">
+          <a class="transition-colors duration-200 flex items-center space-x-1 px-3 py-1 rounded-md hover:bg-white/10" href="/view/users">
             <i class="fas fa-users"></i>
             <span>Collectors</span>
           </a>
@@ -36,7 +36,13 @@
         <span class="text-sm">
           Xin chào, <strong><%= member.username %></strong>
         </span>
-        <span class="px-3 py-1 rounded-full text-xs font-semibold <%= member.role === 'admin' ? 'bg-red-500' : 'bg-blue-500' %>">
+        <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ring-1 ring-white/30 shadow-sm <%=
+          member.role === 'admin'
+            ? 'bg-gradient-to-r from-red-500 to-pink-500'
+            : member.role === 'user'
+            ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
+            : 'bg-gradient-to-r from-slate-500 to-gray-600'
+        %>">
           <%= member.role %>
         </span>
       </div>
