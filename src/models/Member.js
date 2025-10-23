@@ -4,11 +4,12 @@ const Schema = mongoose.Schema;
 
 const memberSchema = new Schema(
   {
-    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    fullname: { type: String, trim: true, default: '' },
-    birthYear: { type: Number, min: 1900, max: 2100 },
-  role: { type: String, enum: ['guest', 'user', 'admin'], default: 'user' },
+    name: { type: String, required: true, trim: true },
+    YOB: { type: Number, required: true, min: 1900, max: 2100 }, // Year of Birth
+    gender: { type: Boolean, required: true }, // true = male, false = female
+    isAdmin: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

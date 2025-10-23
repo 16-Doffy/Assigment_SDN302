@@ -242,7 +242,7 @@ router.delete('/:id', ensureAuthenticated, requirePermission(PERMISSIONS.PRODUCT
   }
 });
 
-// create/update feedback
+// create feedback (only once, no update allowed)
 router.post('/:id/feedback', ensureAuthenticated, requirePermission(PERMISSIONS.FEEDBACK.CREATE), async (req, res, next) => {
   try {
     const productId = req.params.id;
@@ -254,11 +254,20 @@ router.post('/:id/feedback', ensureAuthenticated, requirePermission(PERMISSIONS.
     const { comment, rating } = req.body;
     if (!comment || String(comment).trim().length === 0) return res.redirect(`/products/${productId}`);
 
-    await require('../models/Feedback').findOneAndUpdate(
-      { product: productId, member: memberId },
-      { comment: String(comment).trim(), rating: rating ? Math.max(1, Math.min(3, Number(rating))) : 3, updatedAt: new Date() },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
+    // Check if feedback already exists
+    const existingFeedback = await Feedback.findOne({ product: productId, member: memberId });
+    if (existingFeedback) {
+      return res.redirect(`/products/${productId}?error=already_feedback`);
+    }
+
+    // Create new feedback only
+    await Feedback.create({
+      product: productId,
+      member: memberId,
+      comment: String(comment).trim(),
+      rating: rating ? Math.max(1, Math.min(3, Number(rating))) : 3
+    });
+    
     res.redirect(`/products/${productId}`);
   } catch (err) {
     if (err.code === 11000) return res.redirect(`/products/${req.params.id}`);

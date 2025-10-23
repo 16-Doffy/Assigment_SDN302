@@ -76,7 +76,7 @@ app.use('/products', viewProductsRouter); // <-- mount products router here
 // alias /perfumes to the same router
 app.use('/perfumes', viewProductsRouter);
 app.use('/profile', viewProfileRouter);
-app.use('/view/users', viewUsersRouter);
+app.use('/users', viewUsersRouter);
 app.use('/dashboard', requireRole('admin'), viewDashboardRouter);
 
 // Root route - redirect to appropriate page
